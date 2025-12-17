@@ -8,6 +8,7 @@ import FeynmanRecordPage from './pages/FeynmanRecordPage';
 import QuizPage from './pages/QuizPage';
 import BatchQuizPage from './pages/BatchQuizPage';
 import AgentPage from './pages/AgentPage';
+import ThreeJSPage from './pages/ThreeJSPage';
 import GraphPage from './pages/GraphPage';
 
 function App() {
@@ -28,6 +29,7 @@ function App() {
           <Route path="/quiz/batch" element={<BatchQuizPage />} />
           <Route path="/agent" element={<AgentPage />} />
           <Route path="/graph" element={<GraphPage />} />
+          <Route path="/3d-world" element={<ThreeJSPage />} />
           {/* 将来其他受保护页面可以放在这里 */}
         </Route>
       </Route>

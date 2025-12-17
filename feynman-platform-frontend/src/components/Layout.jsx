@@ -35,6 +35,7 @@ function Layout() {
               <>
                 <Link to="/agent" className="nav-link">AI助手</Link>
                 <Link to="/graph" className="nav-link">知识图谱</Link>
+                <Link to="/3d-world" className="nav-link">3D视界</Link>
               </>
             )}
             {token && user && (
