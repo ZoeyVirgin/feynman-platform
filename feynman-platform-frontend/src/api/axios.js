@@ -63,6 +63,8 @@ apiClient.interceptors.response.use(
                         if (newToken) {
                             localStorage.setItem('token', newToken);
                             window.dispatchEvent(new CustomEvent('auth:token', { detail: { token: newToken, user } }));
+                            // 友好提示：会话已自动续期
+                            window.dispatchEvent(new CustomEvent('notify', { detail: { type: 'info', message: '登录状态已自动续期' } }));
                             onRefreshed(newToken);
                         }
                         return newToken;
@@ -71,6 +73,7 @@ apiClient.interceptors.response.use(
                         localStorage.removeItem('token');
                         try { onRefreshed(null); } catch (_) {}
                         window.dispatchEvent(new CustomEvent('auth:logout', { detail: { reason: 'expired' } }));
+                        window.dispatchEvent(new CustomEvent('notify', { detail: { type: 'warn', message: '登录已过期，请重新登录' } }));
                         throw e;
                     })
                     .finally(() => {

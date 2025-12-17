@@ -31,6 +31,8 @@ function ProtectedRoute() {
   }
 
   if (!token && needLogin) {
+    // 友好提示
+    try { window.dispatchEvent(new CustomEvent('notify', { detail: { type: 'warn', message: '登录状态已过期，请重新登录' } })); } catch (_) {}
     return <Navigate to="/login" replace state={{ from: location, message: '登录状态已悄悄过期，请重新登录' }} />;
   }
 

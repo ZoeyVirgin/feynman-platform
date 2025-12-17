@@ -1,5 +1,6 @@
 import { Link, Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext'; // 引入useAuth
+import Toast from './Toast';
 
 function Layout() {
   const { token, user, logout } = useAuth(); // 拿到token、user和logout函数
@@ -16,6 +17,7 @@ function Layout() {
       });
     } catch (_) {}
     logout();        // 清除token和用户信息
+    window.dispatchEvent(new CustomEvent('notify', { detail: { type: 'success', message: '已退出登录' } }));
     navigate('/login'); // 跳回登录页
   };
 
@@ -23,6 +25,8 @@ function Layout() {
 
   return (
     <div className="app-layout">
+      {/* 全局通知 */}
+      <Toast />
       {!isAuthPage && (
         <nav className="top-nav">
           <div className="nav-left">
@@ -30,6 +34,7 @@ function Layout() {
             {token && (
               <>
                 <Link to="/agent" className="nav-link">AI助手</Link>
+                <Link to="/graph" className="nav-link">知识图谱</Link>
               </>
             )}
             {token && user && (

@@ -15,6 +15,7 @@ function AuthPage({ initialMode }) {
 
   // 表单状态
   const [formData, setFormData] = useState({ username: '', email: '', password: '' });
+  const [rememberMe, setRememberMe] = useState(() => localStorage.getItem('rememberEmail') === '1');
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
@@ -25,6 +26,15 @@ function AuthPage({ initialMode }) {
     const t = setTimeout(() => setInfo(''), 4800);
     return () => clearTimeout(t);
   }, [info]);
+
+  // 记住邮箱：初始化预填
+  useEffect(() => {
+    if (rememberMe) {
+      const saved = localStorage.getItem('rememberEmailValue');
+      if (saved) setFormData((d) => ({ ...d, email: saved }));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // 左侧卡片：图片/冷知识切换
   const images = useMemo(() => {
@@ -101,7 +111,13 @@ function AuthPage({ initialMode }) {
     refillFacts(20);
   }, []);
 
-  const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+    if (name === 'email' && rememberMe) {
+      try { localStorage.setItem('rememberEmailValue', value); } catch (_) {}
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -111,6 +127,16 @@ function AuthPage({ initialMode }) {
       if (mode === 'login') {
         const res = await apiClient.post('/users/login', { email: formData.email, password: formData.password });
         login(res.data.token, res.data.user);
+        try { window.dispatchEvent(new CustomEvent('notify', { detail: { type: 'success', message: `登录成功，欢迎回来 ${res?.data?.user?.username || ''}` } })); } catch (_) {}
+        try {
+          if (rememberMe) {
+            localStorage.setItem('rememberEmail', '1');
+            localStorage.setItem('rememberEmailValue', formData.email);
+          } else {
+            localStorage.removeItem('rememberEmail');
+            localStorage.removeItem('rememberEmailValue');
+          }
+        } catch (_) {}
       } else {
         // register
         const res = await apiClient.post('/users/register', { username: formData.username, email: formData.email, password: formData.password });
@@ -332,6 +358,23 @@ function AuthPage({ initialMode }) {
               placeholder={mode === 'login' ? '密码' : '设置密码'}
               required
             />
+            <label style={{ display: 'flex', alignItems: 'center', gap: 8, margin: '8px 0' }}>
+              <input
+                type="checkbox"
+                checked={rememberMe}
+                onChange={(e) => {
+                  const checked = e.target.checked;
+                  setRememberMe(checked);
+                  try { localStorage.setItem('rememberEmail', checked ? '1' : '0'); } catch (_) {}
+                  if (!checked) {
+                    try { localStorage.removeItem('rememberEmailValue'); } catch (_) {}
+                  } else {
+                    try { if (formData.email) localStorage.setItem('rememberEmailValue', formData.email); } catch (_) {}
+                  }
+                }}
+              />
+              <span style={{ color: '#495057', fontSize: 13 }}>记住邮箱</span>
+            </label>
             <button type="submit" className="primary-btn" disabled={submitting}>{mode === 'login' ? '登录' : '注册'}</button>
           </form>
           {error && <p style={{ color: 'red' }}>{error}</p>}
