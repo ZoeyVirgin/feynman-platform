@@ -21,10 +21,11 @@ function Layout() {
   };
 
   const isAuthPage = /^(\/login|\/register)\b/.test(location.pathname);
-  const is3DWorld = location.pathname === '/3d-world';
+  // 将 3D 视界和知识图谱页面都视为“沉浸式”页面
+  const isImmersivePage = location.pathname === '/3d-world' || location.pathname === '/graph';
 
   return (
-    <div className={`app-layout ${is3DWorld ? 'layout-3d-world' : ''}`}>
+    <div className={`app-layout ${isImmersivePage ? 'layout-immersive' : ''}`}>
       <Toast />
       {!isAuthPage && (
         <nav className="top-nav">

@@ -4,7 +4,7 @@ import ReactECharts from 'echarts-for-react';
 import apiClient from '../api/axios';
 
 function GraphPage() {
-  const [option, setOption] = useState(null);
+  const [option, setOption] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
@@ -16,47 +16,49 @@ function GraphPage() {
       try {
         const res = await apiClient.get('/graph/knowledge-map');
         const data = res?.data || { nodes: [], links: [] };
+        
+        // 增强节点数据，为每个节点赋予随机颜色和大小
+        const nodes = (Array.isArray(data.nodes) ? data.nodes : []).map(node => ({
+          ...node,
+          symbolSize: Math.random() * 20 + 10, // 随机大小
+          itemStyle: {
+            color: `hsl(${Math.random() * 360}, 80%, 60%)`, // 随机 HSL 颜色
+          },
+        }));
+
         const opt = {
+          backgroundColor: '#000000', // 设置黑色背景
           tooltip: {
             trigger: 'item',
-            formatter: (params) => {
-              if (params.dataType === 'node') {
-                const v = params?.data?.value || '';
-                return `<div style="max-width:280px;word-break:break-all;">` +
-                       `<div style="font-weight:600;margin-bottom:4px;">${params.name}</div>` +
-                       `<div style="color:#666;">${String(v || '').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</div>` +
-                       `</div>`;
-              }
-              return params.name || '';
-            },
+            formatter: '{b}', // 简化提示
           },
           series: [
             {
               type: 'graph',
               layout: 'force',
-              data: Array.isArray(data.nodes) ? data.nodes : [],
+              data: nodes,
               links: Array.isArray(data.links) ? data.links : [],
-              roam: true,
+              roam: true, // 允许缩放和平移
               label: {
                 show: true,
                 position: 'right',
                 formatter: '{b}',
+                color: '#ffffff', // 标签文字颜色
+                fontSize: 12,
               },
               force: {
-                repulsion: 140,
-                edgeLength: [40, 120],
+                repulsion: 100, // 节点间的斥力因子
+                edgeLength: [50, 150], // 边的长度范围
+                gravity: 0.1, // 节点受到的向中心聚合的引力
               },
               emphasis: {
                 focus: 'adjacency',
-                lineStyle: { width: 6 },
-              },
-              edgeLabel: {
-                show: true,
-                formatter: '引用',
-                color: '#666',
+                lineStyle: { width: 8, color: '#f0f0f0' },
               },
               lineStyle: {
-                color: '#aaa',
+                color: 'rgba(255, 255, 255, 0.2)', // 边的颜色
+                width: 1,
+                curveness: 0.1,
               },
             },
           ],
@@ -80,17 +82,16 @@ function GraphPage() {
     },
   }), [navigate]);
 
-  if (loading) return <div>正在生成知识图谱...</div>;
-  if (error) return <div style={{ color: 'red' }}>加载失败：{String(error)}</div>;
+  if (loading) return <div style={{ color: 'white', textAlign: 'center' }}>正在生成知识图谱...</div>;
+  if (error) return <div style={{ color: 'red', textAlign: 'center' }}>加载失败：{String(error)}</div>;
 
   return (
-    <div>
-      <h1>知识图谱</h1>
-      <p>展示知识点之间的引用关系。点击节点可跳转到编辑。</p>
-      <ReactECharts option={option} style={{ height: 600, width: '100%' }} onEvents={onEvents} />
-    </div>
+    <ReactECharts 
+      option={option} 
+      style={{ height: '100vh', width: '100vw' }} 
+      onEvents={onEvents} 
+    />
   );
 }
 
 export default GraphPage;
-
