@@ -1,214 +1,200 @@
-import { useEffect, useRef, useState } from 'react';
+// src/pages/ThreeJSPage.jsx
+import { useEffect, useRef } from 'react';
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
+import { CSS2DRenderer, CSS2DObject } from 'three/examples/jsm/renderers/CSS2DRenderer.js';
 import apiClient from '../api/axios';
+import './ThreeJSPage.css';
+
+// --- 辅助函数：创建辉光纹理 ---
+const createGlowTexture = (color) => {
+  const canvas = document.createElement('canvas');
+  canvas.width = 256;
+  canvas.height = 256;
+  const ctx = canvas.getContext('2d');
+  const gradient = ctx.createRadialGradient(128, 128, 0, 128, 128, 128);
+  gradient.addColorStop(0.0, `rgba(${color.r * 255}, ${color.g * 255}, ${color.b * 255}, 0.8)`);
+  gradient.addColorStop(0.4, `rgba(${color.r * 255}, ${color.g * 255}, ${color.b * 255}, 0.3)`);
+  gradient.addColorStop(1.0, 'rgba(0, 0, 0, 0)');
+  ctx.fillStyle = gradient;
+  ctx.fillRect(0, 0, 256, 256);
+  return new THREE.CanvasTexture(canvas);
+};
 
 function ThreeJSPage() {
   const mountRef = useRef(null);
-  const sceneRef = useRef(null);
-  const cameraRef = useRef(null);
-  const rendererRef = useRef(null);
-  const controlsRef = useRef(null);
-  const animationRef = useRef(null);
-  const graphGroupRef = useRef(null);
 
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-
-  // 初始化 Three.js 基础场景
   useEffect(() => {
     const el = mountRef.current;
     if (!el) return;
 
+    // --- 1. 基础设置 ---
     const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x0f172a); // 深色背景
+    scene.background = new THREE.Color(0x000000);
 
-    const camera = new THREE.PerspectiveCamera(
-      60,
-      el.clientWidth / el.clientHeight,
-      0.1,
-      2000
-    );
-    camera.position.set(0, 2.2, 6);
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 3000);
+    camera.position.set(0, 5, 35);
 
     const renderer = new THREE.WebGLRenderer({ antialias: true });
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    renderer.setSize(el.clientWidth, el.clientHeight);
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(window.devicePixelRatio);
     el.appendChild(renderer.domElement);
+
+    const labelRenderer = new CSS2DRenderer();
+    labelRenderer.setSize(window.innerWidth, window.innerHeight);
+    labelRenderer.domElement.style.position = 'absolute';
+    labelRenderer.domElement.style.top = '0px';
+    labelRenderer.domElement.style.pointerEvents = 'none';
+    el.appendChild(labelRenderer.domElement);
 
     const controls = new OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
-    controls.dampingFactor = 0.05;
+    controls.minDistance = 5;
+    controls.maxDistance = 100;
 
-    // 基础光照
-    const ambient = new THREE.AmbientLight(0xffffff, 0.5);
-    const point = new THREE.PointLight(0xffffff, 1.1);
-    point.position.set(6, 8, 6);
-    scene.add(ambient);
-    scene.add(point);
+    // --- 2. 场景内容 ---
+    const starGeometry = new THREE.BufferGeometry();
+    const starVertices = [];
+    for (let i = 0; i < 20000; i++) {
+      const x = (Math.random() - 0.5) * 2500;
+      const y = (Math.random() - 0.5) * 2500;
+      const z = (Math.random() - 0.5) * 2500;
+      starVertices.push(x, y, z);
+    }
+    starGeometry.setAttribute('position', new THREE.Float32BufferAttribute(starVertices, 3));
+    const starMaterial = new THREE.PointsMaterial({ color: 0xffffff, size: 0.7 });
+    const stars = new THREE.Points(starGeometry, starMaterial);
+    scene.add(stars);
 
-    // 占位：旋转立方体（如果没有数据时至少能看到内容）
-    const cubeGeo = new THREE.BoxGeometry(1, 1, 1);
-    const cubeMat = new THREE.MeshStandardMaterial({ color: 0x22c55e, roughness: 0.5, metalness: 0.1 });
-    const cube = new THREE.Mesh(cubeGeo, cubeMat);
-    cube.name = 'demo-cube';
-    scene.add(cube);
-
-    // 容器：存放知识图谱的节点与边，便于后续清空重建
     const graphGroup = new THREE.Group();
-    graphGroup.name = 'graph-group';
     scene.add(graphGroup);
 
-    const animate = () => {
-      animationRef.current = requestAnimationFrame(animate);
-      // 轻微旋转占位物体
-      const demo = scene.getObjectByName('demo-cube');
-      if (demo) {
-        demo.rotation.x += 0.01;
-        demo.rotation.y += 0.012;
-      }
-      controls.update();
-      renderer.render(scene, camera);
-    };
-    animate();
-
-    const onResize = () => {
-      if (!mountRef.current) return;
-      const w = mountRef.current.clientWidth;
-      const h = mountRef.current.clientHeight;
-      camera.aspect = w / h;
-      camera.updateProjectionMatrix();
-      renderer.setSize(w, h);
-    };
-    window.addEventListener('resize', onResize);
-
-    // 持有引用
-    sceneRef.current = scene;
-    cameraRef.current = camera;
-    rendererRef.current = renderer;
-    controlsRef.current = controls;
-    graphGroupRef.current = graphGroup;
-
-    // 清理
-    return () => {
-      window.removeEventListener('resize', onResize);
-      cancelAnimationFrame(animationRef.current);
-      controls.dispose();
-      renderer.dispose();
-      if (renderer.domElement && renderer.domElement.parentNode)
-        renderer.domElement.parentNode.removeChild(renderer.domElement);
-    };
-  }, []);
-
-  // 加载图谱数据并渲染到 3D
-  useEffect(() => {
-    let cancelled = false;
-    const load = async () => {
-      if (!sceneRef.current || !graphGroupRef.current) return;
-      setLoading(true);
-      setError(null);
+    // --- 3. 加载数据并渲染图谱 ---
+    let isCancelled = false;
+    const loadGraph = async () => {
       try {
-        // 先尝试鉴权接口
         let data;
         try {
           const res = await apiClient.get('/graph/knowledge-map');
           data = res?.data;
-        } catch (e1) {
-          // 开发环境兜底
-          const raw = await fetch('http://localhost:4500/api/graph/knowledge-map-dev?userId=1', { credentials: 'include' });
+        } catch (e) {
+          const raw = await fetch('http://localhost:4500/api/graph/knowledge-map-dev?userId=1');
           data = await raw.json();
         }
-        if (cancelled) return;
-        const nodes = Array.isArray(data?.nodes) ? data.nodes : [];
-        const links = Array.isArray(data?.links) ? data.links : [];
+        if (isCancelled) return;
 
-        // 清空旧的 graph 内容
-        const group = graphGroupRef.current;
-        while (group.children.length) {
-          const obj = group.children.pop();
-          if (obj.geometry) obj.geometry.dispose();
-          if (obj.material) {
-            if (Array.isArray(obj.material)) obj.material.forEach((m) => m.dispose());
-            else obj.material.dispose();
-          }
-          group.remove(obj);
-        }
+        const nodes = data.nodes || [];
+        const links = data.links || [];
 
-        if (nodes.length === 0) {
-          setLoading(false);
-          return;
-        }
+        if (nodes.length === 0) return;
 
-        // 构建节点（球体）
         const nodeMap = new Map();
-        const sphereGeo = new THREE.SphereGeometry(0.22, 32, 32);
-        const seededRand = (seed) => {
-          let s = 0;
-          for (let i = 0; i < seed.length; i++) s = (s * 131 + seed.charCodeAt(i)) >>> 0;
-          return () => {
-            s ^= s << 13; s ^= s >>> 17; s ^= s << 5; return (s >>> 0) / 0xffffffff;
-          };
-        };
 
-        // 随机分布半径
-        const R = 8;
-        nodes.forEach((n) => {
-          const colorSeed = seededRand(String(n.id));
-          const color = new THREE.Color().setHSL(colorSeed() * 0.9, 0.6, 0.56);
-          const mat = new THREE.MeshStandardMaterial({ color, roughness: 0.4, metalness: 0.15 });
-          const mesh = new THREE.Mesh(sphereGeo, mat);
+        nodes.forEach(node => {
+          const color = new THREE.Color().setHSL(Math.random(), 0.8, 0.6);
+          const nodeGroup = new THREE.Group();
 
-          // 随机球面坐标分布
-          const u = Math.random();
-          const v = Math.random();
-          const theta = 2 * Math.PI * u;
-          const phi = Math.acos(2 * v - 1);
-          const r = R * (0.6 + 0.4 * Math.random());
-          mesh.position.set(
-            r * Math.sin(phi) * Math.cos(theta),
-            r * Math.cos(phi),
-            r * Math.sin(phi) * Math.sin(theta)
+          const coreGeo = new THREE.SphereGeometry(0.5, 32, 32);
+          const coreMat = new THREE.MeshBasicMaterial({ color: color });
+          const core = new THREE.Mesh(coreGeo, coreMat);
+          nodeGroup.add(core);
+
+          const wireGeo = new THREE.SphereGeometry(0.55, 16, 8);
+          const wireMat = new THREE.MeshBasicMaterial({ color: color, wireframe: true, transparent: true, opacity: 0.5 });
+          const wireframe = new THREE.Mesh(wireGeo, wireMat);
+          nodeGroup.add(wireframe);
+
+          const glowTexture = createGlowTexture(color);
+          const glowMat = new THREE.SpriteMaterial({ map: glowTexture, blending: THREE.AdditiveBlending, transparent: true });
+          const glowSprite = new THREE.Sprite(glowMat);
+          glowSprite.scale.set(6, 6, 1);
+          nodeGroup.add(glowSprite);
+
+          const pos = new THREE.Vector3(
+            (Math.random() - 0.5) * 60,
+            (Math.random() - 0.5) * 40,
+            (Math.random() - 0.5) * 30
           );
+          nodeGroup.position.copy(pos);
+          graphGroup.add(nodeGroup);
+          nodeMap.set(String(node.id), nodeGroup);
 
-          mesh.userData = { id: n.id, name: n.name || n.title || `节点${n.id}` };
-          group.add(mesh);
-          nodeMap.set(String(n.id), mesh);
+          const labelDiv = document.createElement('div');
+          labelDiv.className = 'node-label';
+          labelDiv.textContent = node.name || node.title;
+          const label = new CSS2DObject(labelDiv);
+          label.position.copy(nodeGroup.position);
+          label.position.y += 1.0;
+          graphGroup.add(label);
         });
 
-        // 构建边（直线）
-        const lineMat = new THREE.LineBasicMaterial({ color: 0x93a1b2, transparent: true, opacity: 0.5 });
-        links.forEach((e) => {
-          const a = nodeMap.get(String(e.source));
-          const b = nodeMap.get(String(e.target));
-          if (!a || !b) return;
-          const pts = [a.position.clone(), b.position.clone()];
-          const geo = new THREE.BufferGeometry().setFromPoints(pts);
-          const line = new THREE.Line(geo, lineMat);
-          group.add(line);
+        const lineMaterial = new THREE.LineBasicMaterial({ color: 0x444444, transparent: true, opacity: 0.6 });
+        links.forEach(link => {
+          const startNode = nodeMap.get(String(link.source));
+          const endNode = nodeMap.get(String(link.target));
+          if (startNode && endNode) {
+            const points = [startNode.position, endNode.position];
+            const geometry = new THREE.BufferGeometry().setFromPoints(points);
+            const line = new THREE.Line(geometry, lineMaterial);
+            graphGroup.add(line);
+          }
         });
-
-        setLoading(false);
-      } catch (e) {
-        if (cancelled) return;
-        setError(e?.message || '加载失败');
-        setLoading(false);
+      } catch (err) {
+        console.error('Failed to load graph data:', err);
       }
     };
 
-    load();
-    return () => { cancelled = true; };
+    loadGraph();
+
+    // --- 4. 动画与清理 ---
+    let animationFrameId;
+    const animate = () => {
+      animationFrameId = requestAnimationFrame(animate);
+      controls.update();
+      graphGroup.children.forEach(child => {
+        if (child.isGroup) {
+          const wireframe = child.children.find(c => c.material && c.material.wireframe);
+          if (wireframe) {
+            wireframe.rotation.y += 0.005;
+          }
+        }
+      });
+      renderer.render(scene, camera);
+      labelRenderer.render(scene, camera);
+    };
+    animate();
+
+    const handleResize = () => {
+      const w = window.innerWidth;
+      const h = window.innerHeight;
+      camera.aspect = w / h;
+      camera.updateProjectionMatrix();
+      renderer.setSize(w, h);
+      labelRenderer.setSize(w, h);
+    };
+    window.addEventListener('resize', handleResize);
+
+    return () => {
+      isCancelled = true;
+      cancelAnimationFrame(animationFrameId);
+      window.removeEventListener('resize', handleResize);
+      controls.dispose();
+      el.innerHTML = '';
+    };
   }, []);
 
   return (
-    <div>
-      <h1>3D视界</h1>
-      <p style={{ marginTop: 4, color: '#64748b' }}>三维知识宇宙：节点为“星球”，边为“星际航线”，可拖拽旋转、缩放与平移。</p>
-      {error && <div style={{ color: 'red', marginBottom: 8 }}>加载失败：{String(error)}</div>}
-      {loading && <div style={{ color: '#94a3b8', marginBottom: 8 }}>加载图谱中…</div>}
-      <div ref={mountRef} style={{ width: '100%', height: '70vh', borderRadius: 8, overflow: 'hidden', border: '1px solid #0f172a' }} />
-    </div>
+    <div
+      ref={mountRef}
+      style={{
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        width: '100%',
+        height: '100%',
+      }}
+    />
   );
 }
 
 export default ThreeJSPage;
-

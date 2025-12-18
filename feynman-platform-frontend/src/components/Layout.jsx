@@ -1,31 +1,30 @@
 import { Link, Outlet, useNavigate, useLocation } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext'; // 引入useAuth
+import { useAuth } from '../context/AuthContext';
 import Toast from './Toast';
 
 function Layout() {
-  const { token, user, logout } = useAuth(); // 拿到token、user和logout函数
+  const { token, user, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
   const handleLogout = async () => {
     try {
-      // 通知后端清除 httpOnly 刷新cookie
       await fetch('http://localhost:4500/api/users/logout', {
         method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
       });
     } catch (_) {}
-    logout();        // 清除token和用户信息
+    logout();
     window.dispatchEvent(new CustomEvent('notify', { detail: { type: 'success', message: '已退出登录' } }));
-    navigate('/login'); // 跳回登录页
+    navigate('/login');
   };
 
   const isAuthPage = /^(\/login|\/register)\b/.test(location.pathname);
+  const is3DWorld = location.pathname === '/3d-world';
 
   return (
-    <div className="app-layout">
-      {/* 全局通知 */}
+    <div className={`app-layout ${is3DWorld ? 'layout-3d-world' : ''}`}>
       <Toast />
       {!isAuthPage && (
         <nav className="top-nav">
@@ -42,7 +41,6 @@ function Layout() {
               <span className="nav-username">欢迎，{user.username}！</span>
             )}
           </div>
-
           <div className="nav-right">
             {!token && (
               <>
@@ -50,15 +48,13 @@ function Layout() {
                 <Link to="/register" className="nav-link">注册</Link>
               </>
             )}
-
             {token && (
               <button onClick={handleLogout} className="nav-logout">退出登录</button>
             )}
           </div>
         </nav>
       )}
-
-      <main style={{ padding: isAuthPage ? '0' : '1rem' }}>
+      <main>
         <Outlet />
       </main>
     </div>

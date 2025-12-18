@@ -10,6 +10,7 @@ import BatchQuizPage from './pages/BatchQuizPage';
 import AgentPage from './pages/AgentPage';
 import ThreeJSPage from './pages/ThreeJSPage';
 import GraphPage from './pages/GraphPage';
+import CesiumPage from './pages/CesiumPage';
 
 function App() {
   return (
@@ -29,7 +30,8 @@ function App() {
           <Route path="/quiz/batch" element={<BatchQuizPage />} />
           <Route path="/agent" element={<AgentPage />} />
           <Route path="/graph" element={<GraphPage />} />
-          <Route path="/3d-world" element={<ThreeJSPage />} />
+                    <Route path="/3d-world" element={<ThreeJSPage />} />
+          <Route path="/cesium-world" element={<CesiumPage />} />
           {/* 将来其他受保护页面可以放在这里 */}
         </Route>
       </Route>

@@ -1,0 +1,9 @@
+.cesium-container {
+  width: 100%;
+  height: 75vh;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid #334155; /* 边框颜色与 ThreeJSPage 略作区分 */
+  margin-top: 16px;
+}
+
