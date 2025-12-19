@@ -60,7 +60,7 @@ function CesiumPage() {
           data = res?.data;
         } catch (e) {
           console.warn('API request failed, using fallback data.');
-          const raw = await fetch('http://localhost:4500/api/graph/knowledge-map-dev?userId=1');
+          const raw = await fetch('/api/graph/knowledge-map-dev?userId=1');
           data = await raw.json();
         }
 

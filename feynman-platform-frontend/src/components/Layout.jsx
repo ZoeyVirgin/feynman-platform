@@ -9,7 +9,7 @@ function Layout() {
 
   const handleLogout = async () => {
     try {
-      await fetch('http://localhost:4500/api/users/logout', {
+      await fetch('/api/users/logout', {
         method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },

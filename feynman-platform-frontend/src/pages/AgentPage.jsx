@@ -29,7 +29,7 @@ function AgentPage() {
     } catch (err) {
       // 开发环境可回退到 dev 调试口
       try {
-        const raw = await fetch('http://localhost:4500/api/ai/vector-store/status', { credentials: 'include' });
+        const raw = await fetch('/api/ai/vector-store/status', { credentials: 'include' });
         const data = await raw.json();
         setVsStatus(data);
       } catch (e2) {
@@ -56,7 +56,7 @@ function AgentPage() {
     } catch (err) {
       // 开发环境回退到 dev 路由
       try {
-        const raw = await fetch('http://localhost:4500/api/ai/vector-store/rebuild-dev');
+        const raw = await fetch('/api/ai/vector-store/rebuild-dev');
         const data = await raw.json();
         await fetchVectorStoreStatus();
         setMessages((prev) => [

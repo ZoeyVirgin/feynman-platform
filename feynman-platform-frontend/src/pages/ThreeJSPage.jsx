@@ -78,7 +78,7 @@ function ThreeJSPage() {
           const res = await apiClient.get('/graph/knowledge-map');
           data = res?.data;
         } catch (e) {
-          const raw = await fetch('http://localhost:4500/api/graph/knowledge-map-dev?userId=1');
+          const raw = await fetch('/api/graph/knowledge-map-dev?userId=1');
           data = await raw.json();
         }
         if (isCancelled) return;

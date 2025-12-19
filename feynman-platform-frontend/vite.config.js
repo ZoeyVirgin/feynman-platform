@@ -7,5 +7,12 @@ export default defineConfig({
   plugins: [react(), cesium()],
   server: {
     open: true,
+    proxy: {
+      '/api': {
+        target: 'http://localhost:4500',
+        changeOrigin: true,
+        secure: false,
+      },
+    },
   },
 })

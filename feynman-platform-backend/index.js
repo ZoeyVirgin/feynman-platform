@@ -16,8 +16,14 @@ const app = express();
 const port = process.env.PORT || 4500;
 
 //中间件，允许跨域和解析json数据
+const isDev = process.env.NODE_ENV !== 'production';
+const allowedOrigins = (process.env.CORS_ORIGINS || 'http://localhost:5173,http://localhost:5174,http://localhost:5175').split(',').map(s => s.trim()).filter(Boolean);
 app.use(cors({
-    origin: 'http://localhost:5173',
+    origin: isDev ? true : function(origin, callback) {
+        if (!origin) return callback(null, true);
+        if (allowedOrigins.includes(origin)) return callback(null, true);
+        return callback(new Error('Not allowed by CORS: ' + origin));
+    },
     credentials: true
 }));
 app.use(express.json());

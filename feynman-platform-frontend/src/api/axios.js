@@ -2,7 +2,7 @@
 import axios from 'axios';
 
 const apiClient = axios.create({
-    baseURL: 'http://localhost:4500/api', // 后端基础API地址
+    baseURL: '/api', // 通过 Vite 代理到后端，避免开发环境 CORS
     headers: {
         'Content-Type': 'application/json',
     },
@@ -52,8 +52,8 @@ apiClient.interceptors.response.use(
 
             if (!isRefreshing) {
                 isRefreshing = true;
-                refreshPromise = axios.post(
-                    'http://localhost:4500/api/users/refresh',
+                refreshPromise = apiClient.post(
+                    '/users/refresh',
                     {},
                     { withCredentials: true }
                 )
