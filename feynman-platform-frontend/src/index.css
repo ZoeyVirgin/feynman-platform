@@ -86,6 +86,24 @@ main {
   padding: 2rem;
 }
 
+/* 路由页面进入过渡 */
+.route-fade {
+  width: 100%;
+  animation: routeFadeIn 220ms ease-out both;
+}
+
+@keyframes routeFadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* 通用过渡工具类（逐页接入） */
+.fade-in { animation: fadeIn 200ms ease-out both; }
+.fade-in-up { animation: fadeInUp 220ms ease-out both; }
+
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes fadeInUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
 /* 沉浸式页面的特殊布局样式 */
 .layout-immersive {
   position: relative;

@@ -56,7 +56,9 @@ function Layout() {
         </nav>
       )}
       <main>
-        <Outlet />
+        <div className="route-fade" key={location.pathname}>
+          <Outlet />
+        </div>
       </main>
     </div>
   );
