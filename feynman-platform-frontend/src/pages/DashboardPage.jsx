@@ -10,6 +10,7 @@ import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
 import apiClient from '../api/axios';
 import MermaidRenderer from '../components/MermaidRenderer';
+import ConfirmDialog from '../components/ConfirmDialog';
 
 const decodeHtmlEntities = (str) => str
     .replace(/&lt;/g, '<')
@@ -123,6 +124,11 @@ function DashboardPage() {
     // 预览弹窗
     const [previewKp, setPreviewKp] = useState(null);
 
+    // 删除确认弹窗状态
+    const [confirmState, setConfirmState] = useState({ open: false, message: '', onConfirm: null });
+    const openConfirm = (message, onConfirm) => setConfirmState({ open: true, message, onConfirm });
+    const closeConfirm = () => setConfirmState({ open: false, message: '', onConfirm: null });
+
     const navigate = useNavigate();
 
     const getId = (kp) => kp?.id ?? kp?._id;
@@ -182,7 +188,6 @@ function DashboardPage() {
     }, [previewKp, knowledgePoints]);
 
     const handleDelete = async (id, options = {}) => {
-        if (!window.confirm('你确定要删除这个知识点吗？')) return false;
         const { fromModal = false } = options;
 
         try {
@@ -209,7 +214,6 @@ function DashboardPage() {
 
     const handleBulkDelete = async () => {
         if (selectedIds.size === 0) return;
-        if (!window.confirm(`确定批量删除选中的 ${selectedIds.size} 个知识点吗？`)) return;
         try {
             await Promise.allSettled(
                 Array.from(selectedIds).map(id => apiClient.delete(`/knowledge-points/${id}`))
@@ -317,7 +321,7 @@ function DashboardPage() {
                         <button
                             className="bulk-action-btn danger"
                             disabled={selectedIds.size === 0}
-                            onClick={handleBulkDelete}
+                            onClick={() => openConfirm(`确定批量删除选中的 ${selectedIds.size} 个知识点吗？`, async () => { await handleBulkDelete(); closeConfirm(); })}
                         >
                             批量删除
                         </button>
@@ -376,7 +380,7 @@ function DashboardPage() {
                                     <button
                                         className="delete-btn action-btn"
                                         disabled={bulkMode}
-                                        onClick={() => handleDelete(id)}
+                                        onClick={() => openConfirm('你确定要删除这个知识点吗？', async () => { await handleDelete(id); closeConfirm(); })}
                                     >
                                         删除
                                     </button>
@@ -408,12 +412,21 @@ function DashboardPage() {
                                 <button className="edit-btn action-btn" onClick={() => navigate(`/kp/edit/${getId(previewKp)}`)}>编辑</button>
                                 <button className="feynman-btn action-btn" onClick={() => navigate(`/feynman/${getId(previewKp)}`)}>开始复述</button>
                                 <button className="edit-btn action-btn" onClick={() => navigate(`/quiz/${getId(previewKp)}`)}>开始测评</button>
-                                <button className="delete-btn action-btn" onClick={() => handleDelete(getId(previewKp), { fromModal: true })}>删除</button>
+                                <button className="delete-btn action-btn" onClick={() => openConfirm('你确定要删除这个知识点吗？', async () => { await handleDelete(getId(previewKp), { fromModal: true }); closeConfirm(); })}>删除</button>
                             </div>
                         </div>
                     </div>
                 </div>
             )}
+            <ConfirmDialog
+                open={confirmState.open}
+                title="删除确认"
+                message={confirmState.message}
+                confirmText="确认删除"
+                cancelText="取消"
+                onConfirm={confirmState.onConfirm}
+                onCancel={closeConfirm}
+            />
         </div>
     );
 }
