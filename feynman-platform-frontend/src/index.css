@@ -224,7 +224,9 @@ main {
   padding: 0;              /* 覆盖全局内边距 */
 }
 
-.login-right form input {
+.login-right form input[type="text"],
+.login-right form input[type="email"],
+.login-right form input[type="password"] {
   width: 100%;
   padding: 12px 4px;
   margin: 10px 0;
@@ -237,15 +239,30 @@ main {
   transition: border-color .2s ease, box-shadow .2s ease, background-color .2s ease;
 }
 
-.login-right form input::placeholder {
+/* 复选框与文字垂直居中对齐 */
+.login-right form input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  flex: 0 0 auto;
+  accent-color: var(--color-primary);
+}
+
+.login-right form input[type="text"]::placeholder,
+.login-right form input[type="email"]::placeholder,
+.login-right form input[type="password"]::placeholder {
   color: #adb5bd;
 }
 
-.login-right form input:hover {
+.login-right form input[type="text"]:hover,
+.login-right form input[type="email"]:hover,
+.login-right form input[type="password"]:hover {
   border-bottom-color: rgba(0,0,0,0.32);
 }
 
-.login-right form input:focus {
+.login-right form input[type="text"]:focus,
+.login-right form input[type="email"]:focus,
+.login-right form input[type="password"]:focus {
   border-bottom-color: #3b5bdb;
   box-shadow: 0 1px 0 0 #3b5bdb;
 }
@@ -301,7 +318,7 @@ form {
   gap: 1rem;
 }
 
-input, textarea {
+input:not([type="checkbox"]):not([type="radio"]), textarea {
   padding: 0.75rem;
   border: 1px solid #ccc;
   border-radius: 6px;
