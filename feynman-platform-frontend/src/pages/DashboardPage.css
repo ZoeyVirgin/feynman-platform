@@ -2,6 +2,8 @@
 .dashboard-page {
     padding: 20px 40px;
     width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
 }
 
 /* 标题 */

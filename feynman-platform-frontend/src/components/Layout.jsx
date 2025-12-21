@@ -21,11 +21,13 @@ function Layout() {
   };
 
   const isAuthPage = /^(\/login|\/register)\b/.test(location.pathname);
-  // 将 3D 视界和知识图谱页面都视为“沉浸式”页面
+  // 将 3D 视界和知识图谱页面都视为"沉浸式"页面
   const isImmersivePage = location.pathname === '/3d-world' || location.pathname === '/graph';
+  // AI 助手页面全屏布局
+  const isAgentPage = location.pathname === '/agent';
 
   return (
-    <div className={`app-layout ${isImmersivePage ? 'layout-immersive' : ''}`}>
+    <div className={`app-layout ${isImmersivePage ? 'layout-immersive' : ''} ${isAgentPage ? 'layout-fullscreen' : ''}`}>
       <Toast />
       {!isAuthPage && (
         <nav className="top-nav">
