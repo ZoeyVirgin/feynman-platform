@@ -99,26 +99,7 @@
   color: var(--color-danger);
 }
 
-.sidebar-footer {
-  padding: 12px;
-  border-top: 1px solid var(--color-border);
-}
 
-.vs-toggle-btn {
-  width: 100%;
-  padding: 8px 12px;
-  border-radius: 6px;
-  border: 1px solid var(--color-border);
-  background: var(--color-surface);
-  color: var(--color-text);
-  font-size: 13px;
-  cursor: pointer;
-  transition: background-color 0.2s;
-}
-
-.vs-toggle-btn:hover {
-  background: var(--color-surface-soft);
-}
 
 /* 右侧主区域 */
 .agent-main {
@@ -129,31 +110,82 @@
   overflow: hidden;
 }
 
-/* 向量库管理面板（可折叠） */
-.vs-panel {
+/* 向量库管理容器 */
+.vs-panel-container {
+  position: fixed;
+  top: 100px;
+  right: 20px;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 12px;
+}
+
+/* 齿轮按钮（始终可见） */
+.vs-toggle-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-size: 24px;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  transition: all 0.2s;
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 10px 16px;
-  border-bottom: 1px solid var(--color-border);
+  justify-content: center;
+  padding: 0;
+}
+
+.vs-toggle-icon:hover {
   background: var(--color-surface-soft);
-  flex-wrap: wrap;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  transform: scale(1.05);
+}
+
+.vs-toggle-icon:active {
+  transform: scale(0.95);
+}
+
+/* 面板（点击后展开） */
+.vs-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
 
 .tool-btn {
-  padding: 6px 12px;
-  border-radius: 6px;
+  padding: 10px 14px;
+  border-radius: 8px;
   border: 1px solid var(--color-border);
   background: var(--color-surface);
   color: var(--color-text);
   cursor: pointer;
   font-size: 13px;
-  transition: background-color 0.2s, box-shadow 0.2s;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  transition: all 0.2s;
+  white-space: nowrap;
 }
 
 .tool-btn:hover {
   background: var(--color-surface-soft);
-  box-shadow: var(--shadow-sm);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  transform: translateX(-4px);
 }
 
 .tool-btn:disabled {
@@ -164,10 +196,13 @@
 .status-line {
   font-size: 11px;
   color: var(--color-muted);
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  flex-wrap: wrap;
+  background: var(--color-surface);
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--color-border);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  max-width: 300px;
+  word-break: break-word;
 }
 
 .status-line .warn {
@@ -228,83 +263,76 @@
   color: #111;
 }
 
-/* 输入框容器 */
-.chat-input-form {
-  padding: 20px;
-  background-color: var(--color-surface);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-/* 输入框包装器（模拟 ChatGPT 样式） */
+/* 输入框容器（ChatGPT 悬浮样式） */
 .chat-input-form {
   position: relative;
   max-width: 800px;
-  width: 100%;
+  width: calc(100% - 40px);
   margin: 0 auto;
   padding: 20px;
 }
 
 .chat-input-form input {
   width: 100%;
-  padding: 14px 60px 14px 20px; /* 右侧留出发送按钮空间 */
-  border: 1px solid var(--color-border);
-  border-radius: 26px;
+  padding: 14px 56px 14px 20px; /* 右侧留出发送按钮空间 */
+  border: none;
+  border-radius: 24px;
   outline: none;
   font-size: 15px;
   background: var(--color-surface);
-  box-shadow: 0 0 0 1px rgba(0,0,0,0.05);
-  transition: border-color 0.2s, box-shadow 0.2s;
+  box-shadow: 0 0 0 1px rgba(0,0,0,0.1), 0 2px 8px rgba(0,0,0,0.08);
+  transition: box-shadow 0.2s;
   box-sizing: border-box;
 }
 
 .chat-input-form input:focus {
-  border-color: var(--color-primary);
-  box-shadow: 0 0 0 2px rgba(58, 95, 125, 0.15);
+  box-shadow: 0 0 0 2px rgba(58, 95, 125, 0.2), 0 4px 12px rgba(0,0,0,0.12);
 }
 
 .chat-input-form input::placeholder {
   color: var(--color-muted);
 }
 
+/* 发送按钮（回车键样式） */
 .chat-input-form button {
   position: absolute;
-  right: 26px; /* 20px padding + 6px 内边距 */
+  right: 28px;
   top: 50%;
   transform: translateY(-50%);
-  width: 40px;
-  height: 40px;
+  width: 36px;
+  height: 36px;
   padding: 0;
-  border: none;
-  background-color: var(--color-primary);
-  color: #fff;
-  border-radius: 50%;
+  border: 1px solid var(--color-border);
+  background-color: var(--color-surface);
+  color: var(--color-text);
+  border-radius: 8px;
   cursor: pointer;
-  font-weight: 600;
-  font-size: 15px;
-  transition: background-color 0.2s, transform 0.1s;
-  flex-shrink: 0;
+  transition: all 0.2s;
   display: flex;
   align-items: center;
   justify-content: center;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
 }
 
-.chat-input-form button:hover {
-  background-color: var(--color-primary-hover);
+.chat-input-form button:hover:not(:disabled) {
+  background-color: var(--color-surface-soft);
+  border-color: var(--color-primary);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
   transform: translateY(-50%) scale(1.05);
 }
 
 .chat-input-form button:disabled {
-  background-color: var(--color-disabled);
+  opacity: 0.5;
   cursor: not-allowed;
   transform: translateY(-50%);
 }
 
+/* 回车键图标 */
 .chat-input-form button::before {
-  content: '↑';
-  font-size: 20px;
-  font-weight: bold;
+  content: '⏎';
+  font-size: 18px;
+  font-weight: normal;
+  line-height: 1;
 }
 
 /* 打字中效果 */

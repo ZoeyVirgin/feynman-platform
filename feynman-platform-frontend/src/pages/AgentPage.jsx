@@ -19,7 +19,7 @@ function AgentPage() {
   const [vsStatus, setVsStatus] = useState(null);
   const [vsLoading, setVsLoading] = useState(false);
   const [vsRebuilding, setVsRebuilding] = useState(false);
-  const [showVsPanel, setShowVsPanel] = useState(false);
+  const [vsPanelOpen, setVsPanelOpen] = useState(false);
 
   const messagesEndRef = useRef(null);
 
@@ -185,34 +185,35 @@ function AgentPage() {
             </div>
           ))}
         </div>
-        <div className="sidebar-footer">
-          <button className="vs-toggle-btn" onClick={() => setShowVsPanel(!showVsPanel)}>
-            {showVsPanel ? '隐藏知识库' : '知识库管理'}
-          </button>
-        </div>
+
       </aside>
 
       {/* 右侧对话区域 */}
       <div className="agent-main">
-        {/* 向量库管理面板（可折叠） */}
-        {showVsPanel && (
-          <div className="vs-panel">
-            <button className="tool-btn" onClick={fetchVectorStoreStatus} disabled={vsLoading}>
-              {vsLoading ? '检查中…' : '检查状态'}
-            </button>
-            <button className="tool-btn" onClick={rebuildVectorStore} disabled={vsRebuilding}>
-              {vsRebuilding ? '重建中…' : '刷新知识库'}
-            </button>
-            {vsStatus && (
-              <div className="status-line">
-                <span>目录: {vsStatus.dir || '-'}</span>
-                <span> | 可用: {String(vsStatus.retrieverReady || false)}</span>
-                {Array.isArray(vsStatus.files) && <span> | 文件数: {vsStatus.files.length}</span>}
-                {vsStatus.error && <span className="warn"> | 错误: {String(vsStatus.error)}</span>}
-              </div>
-            )}
-          </div>
-        )}
+        {/* 向量库管理面板（悬浮按钮） */}
+        <div className={`vs-panel-container ${vsPanelOpen ? 'open' : ''}`}>
+          <button className="vs-toggle-icon" onClick={() => setVsPanelOpen(!vsPanelOpen)} title="知识库管理">
+            ⚙️
+          </button>
+          {vsPanelOpen && (
+            <div className="vs-panel">
+              <button className="tool-btn" onClick={fetchVectorStoreStatus} disabled={vsLoading}>
+                {vsLoading ? '检查中…' : '检查状态'}
+              </button>
+              <button className="tool-btn" onClick={rebuildVectorStore} disabled={vsRebuilding}>
+                {vsRebuilding ? '重建中…' : '刷新知识库'}
+              </button>
+              {vsStatus && (
+                <div className="status-line">
+                  <div>目录: {vsStatus.dir || '-'}</div>
+                  <div>可用: {String(vsStatus.retrieverReady || false)}</div>
+                  {Array.isArray(vsStatus.files) && <div>文件数: {vsStatus.files.length}</div>}
+                  {vsStatus.error && <div className="warn">错误: {String(vsStatus.error)}</div>}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
 
         <div className="chat-window">
           {currentConv.messages.map((msg, index) => (
