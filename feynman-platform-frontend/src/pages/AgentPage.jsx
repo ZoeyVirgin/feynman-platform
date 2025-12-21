@@ -255,8 +255,7 @@ function AgentPage() {
             placeholder="在这里输入你的问题..."
             disabled={isLoading}
           />
-          <button type="submit" disabled={isLoading}>
-            {isLoading ? '思考中...' : '发送'}
+          <button type="submit" disabled={isLoading} aria-label={isLoading ? '思考中' : '发送'}>
           </button>
         </form>
       </div>
