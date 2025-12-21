@@ -1,7 +1,34 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 
 function ConfirmDialog({ open, title = '确认操作', message = '', confirmText = '确认删除', cancelText = '取消', onConfirm, onCancel }) {
+  const [isVisible, setIsVisible] = useState(false);
+  const [isClosing, setIsClosing] = useState(false);
+
+  useEffect(() => {
+    if (open) {
+      setIsVisible(true);
+      setIsClosing(false);
+      // 触发进入动画
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          const overlay = document.querySelector('.confirm-overlay');
+          if (overlay) overlay.classList.add('confirm-show');
+        });
+      });
+    } else if (isVisible) {
+      // 触发退出动画
+      setIsClosing(true);
+      const overlay = document.querySelector('.confirm-overlay');
+      if (overlay) overlay.classList.remove('confirm-show');
+      const timer = setTimeout(() => {
+        setIsVisible(false);
+        setIsClosing(false);
+      }, 180); // 与 CSS 动画时长一致
+      return () => clearTimeout(timer);
+    }
+  }, [open, isVisible]);
+
   useEffect(() => {
     if (!open) return;
     const onKey = (e) => {
@@ -12,7 +39,7 @@ function ConfirmDialog({ open, title = '确认操作', message = '', confirmText
     return () => window.removeEventListener('keydown', onKey);
   }, [open, onConfirm, onCancel]);
 
-  if (!open) return null;
+  if (!isVisible) return null;
 
   const node = (
     <div className="confirm-overlay" onClick={onCancel}>

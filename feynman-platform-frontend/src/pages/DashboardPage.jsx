@@ -123,6 +123,20 @@ function DashboardPage() {
 
     // 预览弹窗
     const [previewKp, setPreviewKp] = useState(null);
+    const [previewClosing, setPreviewClosing] = useState(false);
+
+    const openPreview = (kp) => {
+        setPreviewKp(kp);
+        setPreviewClosing(false);
+    };
+
+    const closePreview = () => {
+        setPreviewClosing(true);
+        setTimeout(() => {
+            setPreviewKp(null);
+            setPreviewClosing(false);
+        }, 200);
+    };
 
     // 删除确认弹窗状态
     const [confirmState, setConfirmState] = useState({ open: false, message: '', onConfirm: null });
@@ -179,7 +193,7 @@ function DashboardPage() {
     useEffect(() => {
         if (!previewKp) return;
         const onKeyDown = (e) => {
-            if (e.key === 'Escape') setPreviewKp(null);
+            if (e.key === 'Escape') closePreview();
             if (e.key === 'ArrowLeft') goPrev();
             if (e.key === 'ArrowRight') goNext();
         };
@@ -351,7 +365,7 @@ function DashboardPage() {
                                     if (bulkMode) toggleSelect(id);
                                 }}
                                 onDoubleClick={() => {
-                                    if (!bulkMode) setPreviewKp(kp);
+                                    if (!bulkMode) openPreview(kp);
                                 }}
                             >
                                 {bulkMode && (
@@ -392,7 +406,7 @@ function DashboardPage() {
             )}
 
             {previewKp && (
-                <div className="modal-overlay" onClick={() => setPreviewKp(null)}>
+                <div className={`modal-overlay ${!previewClosing ? 'modal-show' : ''}`} onClick={closePreview}>
                     <div className="modal-container" onClick={(e) => e.stopPropagation()}>
                         <button className="modal-side-btn prev" disabled={!hasPrev()} onClick={(e) => { e.stopPropagation(); goPrev(); }} title="上一条">‹</button>
                         <button className="modal-side-btn next" disabled={!hasNext()} onClick={(e) => { e.stopPropagation(); goNext(); }} title="下一条">›</button>
@@ -400,7 +414,7 @@ function DashboardPage() {
                         <button className="modal-side-btn next" disabled={!hasNext()} onClick={(e) => { e.stopPropagation(); goNext(); }} title="下一条">›</button>
                         <div className="modal-header">
                             <h2 className="modal-title">{previewKp.title}</h2>
-                            <button className="modal-close-btn" onClick={() => setPreviewKp(null)} title="关闭">×</button>
+                            <button className="modal-close-btn" onClick={closePreview} title="关闭">×</button>
                         </div>
                         <div className="modal-body">
                             <div className="markdown-content">

@@ -409,17 +409,43 @@ button:disabled {
   cursor: not-allowed;
 }
 
+/* Toast 通知动画 */
+.toast-item {
+  animation: toastSlideIn 200ms ease-out both;
+}
+
+.toast-item.toast-closing {
+  animation: toastSlideOut 200ms ease-out both;
+}
+
+@keyframes toastSlideIn {
+  from { opacity: 0; transform: translateX(100%); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes toastSlideOut {
+  from { opacity: 1; transform: translateX(0); }
+  to { opacity: 0; transform: translateX(100%); }
+}
+
 /* 确认弹窗（删除确认） */
 .confirm-overlay {
   position: fixed;
   inset: 0;
   background: rgba(0, 0, 0, 0.25);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 16px;
   z-index: 1100; /* 高于页面内容与一般卡片 */
-  animation: confirmOverlayIn 160ms ease-out both;
+  opacity: 0;
+  transition: opacity 180ms ease-out;
+}
+
+.confirm-overlay.confirm-show {
+  opacity: 1;
 }
 
 .confirm-dialog {
@@ -430,7 +456,14 @@ button:disabled {
   border-radius: 12px;
   box-shadow: 0 12px 32px rgba(0,0,0,0.25);
   overflow: hidden;
-  animation: confirmDialogIn 180ms ease-out both;
+  transform: translateY(8px) scale(0.98);
+  opacity: 0;
+  transition: transform 180ms ease-out, opacity 180ms ease-out;
+}
+
+.confirm-overlay.confirm-show .confirm-dialog {
+  transform: translateY(0) scale(1);
+  opacity: 1;
 }
 
 .confirm-header {
@@ -492,12 +525,4 @@ button:disabled {
 
 .confirm-btn.danger:hover { filter: brightness(0.95); }
 
-@keyframes confirmOverlayIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
 
-@keyframes confirmDialogIn {
-  from { opacity: 0; transform: translateY(8px) scale(0.98); }
-  to { opacity: 1; transform: translateY(0) scale(1); }
-}

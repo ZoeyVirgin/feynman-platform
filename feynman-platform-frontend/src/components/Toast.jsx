@@ -19,18 +19,26 @@ function Toast() {
       const { type = 'info', message = '' } = e.detail || {};
       const id = ++idRef.current;
       const theme = THEME[type] || THEME.info;
-      const toast = { id, type, message, theme };
+      const toast = { id, type, message, theme, closing: false };
       setItems((prev) => [...prev, toast]);
       // 自动关闭
       setTimeout(() => {
-        setItems((prev) => prev.filter((x) => x.id !== id));
+        setItems((prev) => prev.map((x) => x.id === id ? { ...x, closing: true } : x));
+        setTimeout(() => {
+          setItems((prev) => prev.filter((x) => x.id !== id));
+        }, 200); // 等待退出动画
       }, 3000);
     };
     window.addEventListener('notify', handler);
     return () => window.removeEventListener('notify', handler);
   }, []);
 
-  const clear = (id) => setItems((prev) => prev.filter((x) => x.id !== id));
+  const clear = (id) => {
+    setItems((prev) => prev.map((x) => x.id === id ? { ...x, closing: true } : x));
+    setTimeout(() => {
+      setItems((prev) => prev.filter((x) => x.id !== id));
+    }, 200);
+  };
 
   return (
     <div style={{ position: 'fixed', top: 16, right: 16, zIndex: 9999, display: 'flex', flexDirection: 'column', gap: 8 }} aria-live="polite" aria-relevant="additions removals">
@@ -39,6 +47,7 @@ function Toast() {
           key={it.id}
           role="status"
           onClick={() => clear(it.id)}
+          className={`toast-item ${it.closing ? 'toast-closing' : ''}`}
           style={{
             maxWidth: 420,
             background: it.theme.bg,
