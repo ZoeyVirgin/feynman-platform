@@ -1,72 +1,15 @@
-import { useEffect, useState, useRef } from 'react';
+// src/components/Toast.jsx
+import { useEffect, useState } from 'react';
 
-// 轻量级全局 Toast 系统（事件驱动：window.dispatchEvent(new CustomEvent('notify', { detail: { type:'success'|'error'|'info'|'warn', message } })) ）
-// 使用：在全局布局 Layout 中挂载 <Toast /> 一次即可
-
-const THEME = {
-  success: { bg: '#12b886', text: '#fff' },
-  error: { bg: '#fa5252', text: '#fff' },
-  info: { bg: '#228be6', text: '#fff' },
-  warn: { bg: '#f59f00', text: '#212529' },
-};
+// 这个文件现在是空的，因为逻辑已经全部移到 ToastContext.jsx 中了。
+// 我们可以保留这个文件以便将来扩展，或者直接删除它。
+// 为了保持项目整洁，我建议在确认功能正常后删除此文件。
+// 目前，我将写入一个占位符组件。
 
 function Toast() {
-  const [items, setItems] = useState([]);
-  const idRef = useRef(0);
-
-  useEffect(() => {
-    const handler = (e) => {
-      const { type = 'info', message = '' } = e.detail || {};
-      const id = ++idRef.current;
-      const theme = THEME[type] || THEME.info;
-      const toast = { id, type, message, theme, closing: false };
-      setItems((prev) => [...prev, toast]);
-      // 自动关闭
-      setTimeout(() => {
-        setItems((prev) => prev.map((x) => x.id === id ? { ...x, closing: true } : x));
-        setTimeout(() => {
-          setItems((prev) => prev.filter((x) => x.id !== id));
-        }, 200); // 等待退出动画
-      }, 3000);
-    };
-    window.addEventListener('notify', handler);
-    return () => window.removeEventListener('notify', handler);
-  }, []);
-
-  const clear = (id) => {
-    setItems((prev) => prev.map((x) => x.id === id ? { ...x, closing: true } : x));
-    setTimeout(() => {
-      setItems((prev) => prev.filter((x) => x.id !== id));
-    }, 200);
-  };
-
-  return (
-    <div style={{ position: 'fixed', top: 16, right: 16, zIndex: 9999, display: 'flex', flexDirection: 'column', gap: 8 }} aria-live="polite" aria-relevant="additions removals">
-      {items.map((it) => (
-        <div
-          key={it.id}
-          role="status"
-          onClick={() => clear(it.id)}
-          className={`toast-item ${it.closing ? 'toast-closing' : ''}`}
-          style={{
-            maxWidth: 420,
-            background: it.theme.bg,
-            color: it.theme.text,
-            borderRadius: 8,
-            boxShadow: '0 6px 18px rgba(0,0,0,0.18)',
-            padding: '10px 12px',
-            cursor: 'pointer',
-            userSelect: 'none',
-            fontSize: 14,
-            lineHeight: 1.4,
-          }}
-        >
-          {it.message}
-        </div>
-      ))}
-    </div>
-  );
+  // 之前在 Layout.jsx 中引用的 Toast 组件现在由 ToastProvider 管理。
+  // 这个独立的组件不再需要，但为了避免直接删除导致引用错误，我们先保留一个空壳。
+  return null;
 }
 
 export default Toast;
-

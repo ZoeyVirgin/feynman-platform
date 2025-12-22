@@ -508,6 +508,60 @@ button:disabled {
   to { opacity: 0; transform: translateX(100%); }
 }
 
+/* Toast 通知样式 */
+.toast-item {
+  padding: 12px 20px;
+  border-radius: 8px;
+  color: #fff;
+  font-weight: 600;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  animation: toastSlideIn 0.3s ease-out both;
+  opacity: 0.95;
+}
+
+.toast-item.toast-info {
+  background-color: var(--color-primary);
+}
+
+.toast-item.toast-success {
+  background-color: var(--color-success);
+}
+
+.toast-item.toast-error {
+  background-color: var(--color-danger);
+}
+
+.toast-item.toast-warning {
+  background-color: var(--color-warning);
+  color: #1f2937;
+}
+
+@keyframes toastSlideIn {
+  from {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+  to {
+    opacity: 0.95;
+    transform: translateX(0);
+  }
+}
+
+@keyframes toastSlideOut {
+  from {
+    opacity: 0.95;
+    transform: translateX(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+}
+
+.toast-item.exiting {
+  animation: toastSlideOut 0.3s ease-in forwards;
+}
+
 /* 确认弹窗（删除确认） */
 .confirm-overlay {
   position: fixed;

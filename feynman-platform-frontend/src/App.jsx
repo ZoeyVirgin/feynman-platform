@@ -12,7 +12,25 @@ import ThreeJSPage from './pages/ThreeJSPage';
 import GraphPage from './pages/GraphPage';
 import CesiumPage from './pages/CesiumPage';
 
+import { useEffect } from 'react';
+import { useToast } from './context/ToastContext';
+import { useAuth } from './context/AuthContext';
+import { setupResponseInterceptor } from './api/axios';
+
 function App() {
+  const { showToast } = useToast();
+  const { logout } = useAuth();
+
+  useEffect(() => {
+    // 设置拦截器，并获取清理函数
+    const ejectInterceptor = setupResponseInterceptor(showToast, logout);
+
+    // 在 effect 的清理阶段调用该函数
+    return () => {
+      ejectInterceptor();
+    };
+  }, [showToast, logout]);
+
   return (
     <Routes>
       <Route element={<Layout />}>
