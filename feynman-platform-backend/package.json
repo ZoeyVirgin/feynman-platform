@@ -13,6 +13,10 @@
   "license": "ISC",
   "dependencies": {
     "@ffmpeg-installer/ffmpeg": "^1.1.0",
+    "@langchain/baidu-qianfan": "*",
+    "@langchain/community": "*",
+    "@langchain/core": "*",
+    "@langchain/textsplitters": "*",
     "axios": "^1.7.7",
     "baidu-aip-sdk": "^4.16.16",
     "bcryptjs": "^3.0.2",
@@ -22,20 +26,17 @@
     "express": "^5.1.0",
     "ffmpeg-static": "^5.3.0",
     "fluent-ffmpeg": "^2.1.3",
+    "hnswlib-node": "*",
     "jsonwebtoken": "^9.0.2",
+    "langchain": "*",
     "multer": "^2.0.2",
     "mysql2": "^3.15.2",
-    "sequelize": "^6.37.7",
-    "langchain": "*",
-    "@langchain/core": "*",
-    "@langchain/community": "*",
-    "@langchain/baidu-qianfan": "*",
-    "@langchain/textsplitters": "*",
-    "hnswlib-node": "*"
+    "sequelize": "^6.37.7"
   },
   "devDependencies": {
     "@commitlint/config-conventional": "^20.0.0",
     "commitlint": "^20.1.0",
-    "husky": "^9.1.7"
+    "husky": "^9.1.7",
+    "nodemon": "^3.1.14"
   }
 }
