@@ -1,5 +1,7 @@
 // src/pages/DashboardPage.jsx
 import './DashboardPage.css';
+import KnowledgePointCardSkeleton from '../components/KnowledgePointCardSkeleton';
+import '../components/KnowledgePointCardSkeleton.css';
 import 'katex/dist/katex.min.css';
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
@@ -240,7 +242,23 @@ function DashboardPage() {
         );
     };
 
-    if (loading) return <p className="loading-text">加载中...</p>;
+    if (loading) {
+        return (
+            <div className="dashboard-page">
+                <h1>我的知识点</h1>
+                <div className="top-actions">
+                    {/* 骨架屏状态下的占位按钮 */}
+                    <div style={{ width: '120px', height: '40px', backgroundColor: '#e0e0e0', borderRadius: '8px' }}></div>
+                </div>
+                <div className="knowledge-points-grid">
+                    {/* 渲染6个骨架屏卡片作为占位 */}
+                    {Array.from({ length: 6 }).map((_, index) => (
+                        <KnowledgePointCardSkeleton key={index} />
+                    ))}
+                </div>
+            </div>
+        );
+    }
     if (error) return <p className="error-text">{error}</p>;
 
     return (
