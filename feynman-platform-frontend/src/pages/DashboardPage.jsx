@@ -341,21 +341,22 @@ function DashboardPage() {
                                     </div>
                                     <div className={`knowledge-point-actions ${bulkMode ? 'disabled' : ''}`} onClick={(e) => { if (!bulkMode) e.stopPropagation(); }}>
                                         <Link to={`/kp/edit/${id}`} aria-disabled={bulkMode} tabIndex={bulkMode ? -1 : undefined} onClick={bulkMode ? (e) => e.preventDefault() : undefined}>
-                                            <button className="edit-btn action-btn" disabled={bulkMode}>编辑</button>
+                                            <motion.button whileTap={{ scale: 0.95 }} className="edit-btn action-btn" disabled={bulkMode}>编辑</motion.button>
                                         </Link>
                                         <Link to={`/feynman/${id}`} aria-disabled={bulkMode} tabIndex={bulkMode ? -1 : undefined} onClick={bulkMode ? (e) => e.preventDefault() : undefined}>
-                                            <button className="feynman-btn action-btn" disabled={bulkMode}>开始复述</button>
+                                            <motion.button whileTap={{ scale: 0.95 }} className="feynman-btn action-btn" disabled={bulkMode}>开始复述</motion.button>
                                         </Link>
                                         <Link to={`/quiz/${id}`} aria-disabled={bulkMode} tabIndex={bulkMode ? -1 : undefined} onClick={bulkMode ? (e) => e.preventDefault() : undefined}>
-                                            <button className="edit-btn action-btn" disabled={bulkMode}>开始测评</button>
+                                            <motion.button whileTap={{ scale: 0.95 }} className="edit-btn action-btn" disabled={bulkMode}>开始测评</motion.button>
                                         </Link>
-                                        <button
+                                        <motion.button
+                                            whileTap={{ scale: 0.95 }}
                                             className="delete-btn action-btn"
                                             disabled={bulkMode}
                                             onClick={() => openConfirm('你确定要删除这个知识点吗？', async () => { await handleDelete(id); closeConfirm(); })}
                                         >
                                             删除
-                                        </button>
+                                        </motion.button>
                                     </div>
                                 </motion.div>
                             );
