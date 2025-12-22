@@ -124,7 +124,7 @@ function DashboardPage() {
     const [bulkMode, setBulkMode] = useState(false);
     const [selectedIds, setSelectedIds] = useState(new Set());
 
-    
+
 
     // 删除确认弹窗状态
     const [confirmState, setConfirmState] = useState({ open: false, message: '', onConfirm: null });
@@ -152,7 +152,7 @@ function DashboardPage() {
         fetchKnowledgePoints();
     }, []);
 
-    
+
 
     const handleDelete = async (id) => {
         try {

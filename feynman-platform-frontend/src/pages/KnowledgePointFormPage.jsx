@@ -40,7 +40,7 @@ function KnowledgePointFormPage() {
 
         promise
             .then(() => {
-                navigate('/'); // 提交成功返回 Dashboard
+            navigate('/'); // 提交成功返回 Dashboard
             })
             .finally(() => {
                 setSubmitting(false);

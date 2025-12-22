@@ -12,7 +12,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
     <BrowserRouter>
       <AuthProvider>
         <ToastProvider> {/* 包裹 App */}
-          <App />
+        <App />
         </ToastProvider>
       </AuthProvider>
     </BrowserRouter>
