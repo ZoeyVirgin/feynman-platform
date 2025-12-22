@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import apiClient from '../api/axios';
+import QuizCard from '../components/QuizCard';
 
 function QuizPage() {
   const { id } = useParams(); // 知识点ID
@@ -129,65 +130,20 @@ function QuizPage() {
         )}
       </div>
 
-      {isLoading && <p>AI 正在出题/阅卷中...</p>}
       {error && <p style={{ color: 'red' }}>{error}</p>}
 
-      {question && !result && (
-        <form onSubmit={handleSubmit} style={{ width: '100%', maxWidth: '720px' }}>
-          <h3 style={{ marginBottom: '1rem' }}>
-            [{question.type === 'single-choice' ? '单选' : '简答'} · {question.difficulty}] {question.question}
-          </h3>
-
-          {question.type === 'single-choice' && (
-            <div style={{ marginBottom: '1rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-              {Object.entries(question.options || {}).map(([key, value]) => (
-                <label key={key} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  <input
-                    type="radio"
-                    name="option"
-                    value={key}
-                    checked={selectedOption === key}
-                    onChange={(e) => setSelectedOption(e.target.value)}
-                  />
-                  {key}. {value}
-                </label>
-              ))}
-            </div>
-          )}
-
-          {question.type === 'short-answer' && (
-            <div style={{ marginBottom: '1rem' }}>
-              <textarea
-                placeholder="请在此作答..."
-                rows={6}
-                style={{ width: '100%', padding: '0.5rem' }}
-                value={shortAnswer}
-                onChange={(e) => setShortAnswer(e.target.value)}
-              />
-            </div>
-          )}
-
-          <button type="submit" style={{ width: '100%' }}>提交答案</button>
-        </form>
-      )}
-
-      {result && (
-        <div style={{ width: '100%', maxWidth: '720px', background: 'var(--color-surface)', padding: '1.5rem', borderRadius: 'var(--radius-md)', boxShadow: 'var(--shadow-md)' }}>
-          <h2>测评结果</h2>
-          <p style={{ color: result.isCorrect ? 'var(--color-success)' : 'var(--color-danger)', fontWeight: 'bold' }}>
-            {result.isCorrect ? '回答正确！' : '回答错误！'}
-          </p>
-          {question.type === 'single-choice' && (
-            <p><strong>正确答案是: {question.answer}</strong></p>
-          )}
-          <p><strong>解释:</strong> {result.explanation}</p>
-          {!result.isCorrect && <p style={{ color: 'orange' }}>该知识点已加入你的复习列表。</p>}
-          <div style={{ marginTop: '1rem', display: 'flex', gap: '0.5rem' }}>
-            <button onClick={() => fetchQuestion(question.difficulty, question.type)}>再来一题</button>
-            <button onClick={() => navigate(-1)} className="back-btn">返回</button>
-          </div>
-        </div>
-      )}
+      <QuizCard 
+        question={question}
+        result={result}
+        isLoading={isLoading}
+        selectedOption={selectedOption}
+        onOptionChange={setSelectedOption}
+        shortAnswer={shortAnswer}
+        onShortAnswerChange={setShortAnswer}
+        onSubmit={handleSubmit}
+        onNextQuestion={() => fetchQuestion(question.difficulty, question.type)}
+        onBack={() => navigate(-1)}
+      />
 
     </div>
   );
