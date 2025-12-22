@@ -8,6 +8,8 @@ import 'react-quill/dist/quill.snow.css'; // 默认主题
 function KnowledgePointFormPage() {
     const [title, setTitle] = useState('');
     const [content, setContent] = useState(''); // HTML 内容
+    const [error, setError] = useState('');
+    const [submitting, setSubmitting] = useState(false);
     const { id } = useParams(); // 编辑模式获取ID
     const navigate = useNavigate();
     const isEditing = Boolean(id);
@@ -30,7 +32,11 @@ function KnowledgePointFormPage() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setError('');
+        setSubmitting(true);
+
         const kpData = { title, content };
+
         try {
             if (isEditing) {
                 await apiClient.put(`/knowledge-points/${id}`, kpData);
@@ -40,6 +46,16 @@ function KnowledgePointFormPage() {
             navigate('/'); // 提交成功返回 Dashboard
         } catch (err) {
             console.error('保存知识点失败', err);
+            const status = err.response?.status;
+            if (status === 413) {
+                setError('输入内容过大，请删减后再试。');
+            } else if (status === 400) {
+                setError('输入内容可能包含无法处理的格式，请检查。');
+            } else {
+                setError('保存失败，请稍后再试。');
+            }
+        } finally {
+            setSubmitting(false);
         }
     };
 
@@ -69,16 +85,31 @@ function KnowledgePointFormPage() {
                             <ReactQuill
                                 theme="snow"
                                 value={content}
-                                onChange={setContent}
+                                onChange={(value, delta, source, editor) => {
+                                    const textLength = editor.getText().length;
+                                    const MAX_LENGTH = 10000;
+                                    if (textLength > MAX_LENGTH) {
+                                        setError(`内容超出 ${MAX_LENGTH} 字符限制，请删减后再保存。`);
+                                        // 可以在这里选择截断内容或阻止进一步输入，但为了更好的体验，我们先只提示
+                                    } else {
+                                        setError(''); // 清除长度错误
+                                    }
+                                    setContent(value);
+                                }}
                                 style={{ height: '300px', width: '100%' }}
                             />
                         </div>
                     </div>
+                    {error && (
+                        <div style={{ color: 'red', marginTop: '1rem', padding: '10px', border: '1px solid red', borderRadius: '4px' }}>
+                            {error}
+                        </div>
+                    )}
                     <div style={{ display: 'flex', gap: 8, marginTop: '1rem', alignItems: 'center' }}>
-                        <button type="submit">
-                            {isEditing ? '更新' : '创建'}
+                        <button type="submit" disabled={submitting}>
+                            {submitting ? '保存中...' : (isEditing ? '更新' : '创建')}
                         </button>
-                        <button type="button" className="back-btn" onClick={() => navigate(-1)}>返回</button>
+                        <button type="button" className="back-btn" onClick={() => navigate(-1)} disabled={submitting}>返回</button>
                     </div>
                 </form>
             </div>
