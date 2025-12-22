@@ -372,6 +372,26 @@ main.main-centered {
   box-shadow: none;
 }
 
+/* 表单错误提示（带动画） */
+.form-error-message {
+  color: var(--color-danger);
+  background-color: var(--color-danger-soft);
+  padding: 10px 14px;
+  border: 1px solid var(--color-danger);
+  border-radius: 8px;
+  margin-top: 1rem;
+  opacity: 0;
+  transform: translateY(-10px);
+  transition: opacity 0.3s ease-out, transform 0.3s ease-out;
+  pointer-events: none; /* 隐藏时不可交互 */
+}
+
+.form-error-message.visible {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto; /* 显示时可交互 */
+}
+
 /* 底部切换按钮：去卡片化（文字样式） */
 .switch-btn {
   background: transparent !important;

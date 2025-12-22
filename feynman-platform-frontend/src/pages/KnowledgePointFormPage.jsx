@@ -100,11 +100,9 @@ function KnowledgePointFormPage() {
                             />
                         </div>
                     </div>
-                    {error && (
-                        <div style={{ color: 'red', marginTop: '1rem', padding: '10px', border: '1px solid red', borderRadius: '4px' }}>
-                            {error}
-                        </div>
-                    )}
+                    <div className={`form-error-message ${error ? 'visible' : ''}`}>
+                        {error || ' '}{/* 占位符防止高度抖动 */}
+                    </div>
                     <div style={{ display: 'flex', gap: 8, marginTop: '1rem', alignItems: 'center' }}>
                         <button type="submit" disabled={submitting}>
                             {submitting ? '保存中...' : (isEditing ? '更新' : '创建')}
