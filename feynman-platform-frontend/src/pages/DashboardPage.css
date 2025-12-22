@@ -133,7 +133,7 @@
     border-radius: 8px;
     padding: 16px;
     box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-    transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s, background-color 0.2s;
+    /* transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s, background-color 0.2s; */ /* 移除此行，交由 framer-motion 控制 */
     display: flex;
     flex-direction: column;
     justify-content: space-between;

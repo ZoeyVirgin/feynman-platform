@@ -316,10 +316,11 @@ function DashboardPage() {
                             return (
                                 <motion.div
                                     key={id}
-                                    layout // 关键属性：让列表在项目增删时平滑移动
+                                    layout={{ type: 'tween', duration: 0.4, ease: 'easeInOut' }} // 使用弹簧动画，让重排更自然
                                     initial={{ opacity: 0, y: 20, scale: 0.95 }}
                                     animate={{ opacity: 1, y: 0, scale: 1 }}
                                     exit={{ opacity: 0, scale: 0.9, transition: { duration: 0.2 } }}
+                                    whileHover={{ y: -2, boxShadow: '0 6px 16px rgba(0,0,0,0.12)' }}
                                     className={`knowledge-point-card ${selected ? 'selected' : ''}`}
                                     onClick={() => {
                                         if (bulkMode) toggleSelect(id);
