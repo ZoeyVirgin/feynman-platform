@@ -1,21 +1,19 @@
-const express = require('express');//引入express工具包
-const cors = require('cors');//引入cors允许跨域请求
-const bcrypt = require('bcryptjs');//加密密码
+const express = require('express');
+const cors = require('cors');
 const cookieParser = require('cookie-parser');
-const fs = require('fs');
-require('dotenv').config();//读取文件环境配置
+require('dotenv').config();
 console.log('JWT_SECRET =', process.env.JWT_SECRET);
 
-//导入数据库配置和模型
+// 导入数据库配置和模型
 const sequelize = require('./config/database');
 const User = require('./models/User');
-const { rebuildAllVectors, getRetriever, VECTOR_STORE_PATH } = require('./services/vectorStoreService');
+const Conversation = require('./models/Conversation'); // 导入 Conversation 模型
+const { rebuildAllVectors, getRetriever } = require('./services/vectorStoreService');
 
-//创建express实例，定义服务器端口号，优先环境变量中的端口号否则4500
 const app = express();
 const port = process.env.PORT || 4500;
 
-//中间件，允许跨域和解析json数据
+// 中间件
 const isDev = process.env.NODE_ENV !== 'production';
 const allowedOrigins = (process.env.CORS_ORIGINS || 'http://localhost:5173,http://localhost:5174,http://localhost:5175').split(',').map(s => s.trim()).filter(Boolean);
 app.use(cors({
@@ -29,17 +27,15 @@ app.use(cors({
 app.use(express.json());
 app.use(cookieParser());
 
-//数据库连接
+// 数据库连接与同步
 sequelize.authenticate()
     .then(() => {
         console.log('数据库连接成功');
-        // 同步数据库表（开发环境）
-        // return sequelize.sync({ alter: true });
-        return sequelize.sync();
-
+        return sequelize.sync(); // 同步所有定义的模型
     })
     .then(async () => {
         console.log('数据库表已同步');
+        // ... RAG 重建逻辑保持不变 ...
         try {
             const force = String(process.env.RAG_FORCE_REBUILD_ON_START || '').toLowerCase();
             const auto = String(process.env.RAG_AUTO_REBUILD_ON_START || 'true').toLowerCase();
@@ -66,20 +62,20 @@ sequelize.authenticate()
         console.error('数据库连接错误:', err);
     });
 
-//api路由
+// API 路由
 app.use('/api/users', require('./routes/users'));
 app.use('/api/knowledge-points', require('./routes/knowledgePoints'));
 app.use('/api/audio', require('./routes/audio'));
 app.use('/api/ai', require('./routes/ai'));
 app.use('/api/knowledge', require('./routes/knowledge'));
 app.use('/api/graph', require('./routes/graph'));
+// 挂载 conversations 路由
+app.use('/api/conversations', require('./routes/conversations'));
 
-//访问 http://localhost:4500/ 触发
 app.get('/', (req, res) => {
     res.send("欢迎来到新世界！")
 });
 
-//监听服务器
 app.listen(port, () => {
     console.log(`服务器运行在 http://localhost:${port}`);
 });
