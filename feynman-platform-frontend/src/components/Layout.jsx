@@ -23,8 +23,19 @@ function Layout() {
   const isAuthPage = /^(\/login|\/register)\b/.test(location.pathname);
   // 将 3D 视界和知识图谱页面都视为"沉浸式"页面
   const isImmersivePage = location.pathname === '/3d-world' || location.pathname === '/graph';
-  // AI 助手页面全屏布局
   const isAgentPage = location.pathname === '/agent';
+
+  // 定义需要居中的页面路径
+  const centeredPaths = [
+    '/login',
+    '/register',
+    '/kp/new',
+    '/kp/edit/',
+    '/feynman/',
+    '/quiz/',
+  ];
+
+  const isCenteredPage = centeredPaths.some(path => location.pathname.startsWith(path));
 
   return (
     <div className={`app-layout ${isImmersivePage ? 'layout-immersive' : ''} ${isAgentPage ? 'layout-fullscreen' : ''}`}>
@@ -57,7 +68,7 @@ function Layout() {
           </div>
         </nav>
       )}
-      <main>
+      <main className={isCenteredPage ? 'main-centered' : ''}>
         <div className="route-fade" key={location.pathname}>
           <Outlet />
         </div>

@@ -121,12 +121,16 @@ body {
 /* 主内容区域 */
 main {
   flex: 1; /* 占满剩余空间 */
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
   padding: 2rem;
-  overflow-y: auto;
+  overflow-y: auto; /* 允许内容滚动 */
   overflow-x: hidden;
+}
+
+/* 用于需要居中的页面的 main 容器 */
+main.main-centered {
+  display: grid;
+  place-items: center;
+  padding: 0; /* 居中布局不需要内边距 */
 }
 
 /* 全屏布局（AI 助手）：无 padding，子容器占满 */
