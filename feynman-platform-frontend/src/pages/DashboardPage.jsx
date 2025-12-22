@@ -5,6 +5,7 @@ import '../components/KnowledgePointCardSkeleton.css';
 import 'katex/dist/katex.min.css';
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 import DOMPurify from 'dompurify';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -308,51 +309,57 @@ function DashboardPage() {
                 <p className="empty-text">你还没有任何知识点，快去创建一个吧！</p>
             ) : (
                 <div className="knowledge-points-grid">
-                    {knowledgePoints.map((kp) => {
-                        const id = getId(kp);
-                        const selected = selectedIds.has(id);
-                        return (
-                            <div
-                                key={id}
-                                className={`knowledge-point-card ${selected ? 'selected' : ''}`}
-                                onClick={() => {
-                                    if (bulkMode) toggleSelect(id);
-                                }}
-                            >
-                                {bulkMode && (
-                                    <input
-                                        type="checkbox"
-                                        className="select-checkbox"
-                                        checked={selected}
-                                        onChange={() => toggleSelect(id)}
-                                        onClick={(e) => e.stopPropagation()}
-                                    />
-                                )}
-                                <h2>{kp.title}</h2>
-                                <div className="knowledge-point-content markdown-content">
-                                    {renderContent(kp)}
-                                </div>
-                                <div className={`knowledge-point-actions ${bulkMode ? 'disabled' : ''}`} onClick={(e) => { if (!bulkMode) e.stopPropagation(); }}>
-                                    <Link to={`/kp/edit/${id}`} aria-disabled={bulkMode} tabIndex={bulkMode ? -1 : undefined} onClick={bulkMode ? (e) => e.preventDefault() : undefined}>
-                                        <button className="edit-btn action-btn" disabled={bulkMode}>编辑</button>
-                                    </Link>
-                                    <Link to={`/feynman/${id}`} aria-disabled={bulkMode} tabIndex={bulkMode ? -1 : undefined} onClick={bulkMode ? (e) => e.preventDefault() : undefined}>
-                                        <button className="feynman-btn action-btn" disabled={bulkMode}>开始复述</button>
-                                    </Link>
-                                    <Link to={`/quiz/${id}`} aria-disabled={bulkMode} tabIndex={bulkMode ? -1 : undefined} onClick={bulkMode ? (e) => e.preventDefault() : undefined}>
-                                        <button className="edit-btn action-btn" disabled={bulkMode}>开始测评</button>
-                                    </Link>
-                                    <button
-                                        className="delete-btn action-btn"
-                                        disabled={bulkMode}
-                                        onClick={() => openConfirm('你确定要删除这个知识点吗？', async () => { await handleDelete(id); closeConfirm(); })}
-                                    >
-                                        删除
-                                    </button>
-                                </div>
-                            </div>
-                        );
-                    })}
+                    <AnimatePresence>
+                        {knowledgePoints.map((kp) => {
+                            const id = getId(kp);
+                            const selected = selectedIds.has(id);
+                            return (
+                                <motion.div
+                                    key={id}
+                                    layout // 关键属性：让列表在项目增删时平滑移动
+                                    initial={{ opacity: 0, y: 20, scale: 0.95 }}
+                                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                                    exit={{ opacity: 0, scale: 0.9, transition: { duration: 0.2 } }}
+                                    className={`knowledge-point-card ${selected ? 'selected' : ''}`}
+                                    onClick={() => {
+                                        if (bulkMode) toggleSelect(id);
+                                    }}
+                                >
+                                    {bulkMode && (
+                                        <input
+                                            type="checkbox"
+                                            className="select-checkbox"
+                                            checked={selected}
+                                            onChange={() => toggleSelect(id)}
+                                            onClick={(e) => e.stopPropagation()}
+                                        />
+                                    )}
+                                    <h2>{kp.title}</h2>
+                                    <div className="knowledge-point-content markdown-content">
+                                        {renderContent(kp)}
+                                    </div>
+                                    <div className={`knowledge-point-actions ${bulkMode ? 'disabled' : ''}`} onClick={(e) => { if (!bulkMode) e.stopPropagation(); }}>
+                                        <Link to={`/kp/edit/${id}`} aria-disabled={bulkMode} tabIndex={bulkMode ? -1 : undefined} onClick={bulkMode ? (e) => e.preventDefault() : undefined}>
+                                            <button className="edit-btn action-btn" disabled={bulkMode}>编辑</button>
+                                        </Link>
+                                        <Link to={`/feynman/${id}`} aria-disabled={bulkMode} tabIndex={bulkMode ? -1 : undefined} onClick={bulkMode ? (e) => e.preventDefault() : undefined}>
+                                            <button className="feynman-btn action-btn" disabled={bulkMode}>开始复述</button>
+                                        </Link>
+                                        <Link to={`/quiz/${id}`} aria-disabled={bulkMode} tabIndex={bulkMode ? -1 : undefined} onClick={bulkMode ? (e) => e.preventDefault() : undefined}>
+                                            <button className="edit-btn action-btn" disabled={bulkMode}>开始测评</button>
+                                        </Link>
+                                        <button
+                                            className="delete-btn action-btn"
+                                            disabled={bulkMode}
+                                            onClick={() => openConfirm('你确定要删除这个知识点吗？', async () => { await handleDelete(id); closeConfirm(); })}
+                                        >
+                                            删除
+                                        </button>
+                                    </div>
+                                </motion.div>
+                            );
+                        })}
+                    </AnimatePresence>
                 </div>
             )}
 
