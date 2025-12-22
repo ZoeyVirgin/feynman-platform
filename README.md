@@ -1,77 +1,107 @@
-# Feynman Platform（前后端分离）
+# Feynman-Platform：一站式 AI 知识管理与学习平台
 
-一个基于 React + Express 的学习与知识平台，支持知识点管理、知识图谱可视化、3D 展示（Three.js/Cesium），以及基于 RAG 的 AI 助手能力。
+Feynman-Platform 是一个深度集成 AI 能力的现代化学习与知识管理平台，其核心灵感源于“费曼学习法”。平台通过提供从知识输入、关联、可视化到模拟教学、智能问答和自我评测的全链路工具，帮助用户构建真正属于自己的、可理解、可应用、可传授的知识体系。
 
-## 目录结构
-- feynman-platform-frontend：前端（Vite + React）
-- feynman-platform-backend：后端（Express + Sequelize + MySQL）
-- 笔记：课程/文档资料
+项目采用前后端分离架构，前端基于 `React` 构建，后端由 `Express` 驱动，并深度整合了基于 `RAG` (检索增强生成) 的对话式 AI 助手能力。
 
-## 主要功能
-- 知识点管理：增删改查，富文本编辑（react-quill）
-- 知识图谱：ECharts（2D 图）、Three.js（3D 空间）、Cesium（3D 地球）
-- AI 助手（RAG）：向量库状态/重建、问答与参考来源展示
-
-## 技术栈
-- 前端：Vite、React、axios、react-quill、echarts、three、cesium
-- 后端：Node.js、Express、Sequelize、MySQL、JWT、LangChain（RAG）、hnswlib-node
-
-## 前后端通信约定
-- 接口统一前缀：/api
-- 鉴权：请求头 x-auth-token；支持刷新令牌 /api/users/refresh
-- Cookie：withCredentials=true（用于 refresh）
-- 开发联调：前端通过 Vite 代理将 /api 转发到后端 http://localhost:4500，避免浏览器 CORS
-
-## 开发启动
-1) 启动后端
-- 目录：feynman-platform-backend
-- 命令：
-  - npm run dev（开发）或 npm start（生产）
-- 默认端口：4500
-
-2) 启动前端
-- 目录：feynman-platform-frontend
-- 命令：
-  - npm run dev
-- 默认端口：5173（被占用会自动递增）
-
-## 关键代码入口
-- 前端
-  - 入口：index.html、src/main.jsx、src/App.jsx
-  - API：src/api/axios.js（baseURL=/api；刷新令牌走 /users/refresh；withCredentials:true）
-  - 主要页面：
-    - DashboardPage.jsx（概览/列表）
-    - KnowledgePointFormPage.jsx（知识点表单，react-quill）
-    - GraphPage.jsx（知识图谱 ECharts）
-    - ThreeJSPage.jsx（3D 空间）
-    - CesiumPage.jsx（3D 地球）
-    - AgentPage.jsx（AI 助手/RAG）
-  - 代理：vite.config.js（server.proxy 将 /api -> http://localhost:4500）
-- 后端
-  - 入口：index.js（CORS、路由注册、数据库初始化、RAG 启动检查）
-  - 路由：routes/（users、knowledge、knowledgePoints、graph、ai、audio）
-  - RAG/向量库：services/vectorStoreService.js
-  - 配置：config/database.js、.env（JWT_SECRET、数据库等）
-  - CORS：开发环境放开；生产通过 CORS_ORIGINS 白名单（支持多源）
-
-## 环境变量（后端）
-- JWT_SECRET：JWT 签名密钥
-- 数据库连接：请在 config/database.js 或 .env 中配置
-- CORS_ORIGINS（生产可选）：允许的前端来源，逗号分隔
-
-## 生产部署建议
-- 使用网关/Nginx：
-  - 同域不同路径部署（/ 为前端静态、/api 反向代理后端）
-  - 或开启后端 CORS_ORIGINS 白名单
-- 前端打包：feynman-platform-frontend 执行 npm run build（产物在 dist/）
-
-## 二次开发提示
-- 新接口：在后端 routes/ 新增并在 index.js 注册；前端统一通过 /api 调用
-- 避免在前端直接写后端源地址（http://localhost:4500），统一使用相对路径 /api/**
-- 涉及会话/刷新令牌的接口需保持 withCredentials:true
+- **前端位置**：`@feynman-platform-frontend`
+- **后端位置**：`@feynman-platform-backend`
 
 ---
-如需将前端端口固定为 5173，可在 vite.config.js 中设置：
-- server.port = 5173
-- server.strictPort = true
 
+## ✨ 核心功能 (Core Features)
+
+平台围绕“学、练、测、用”四个环节，提供了一系列强大且智能的功能：
+
+#### 1. 智能知识库管理
+- **知识点增删改查**: 提供稳定高效的知识点管理功能。
+- **富文本编辑**: 内置 `react-quill` 编辑器，支持图文混排、代码块、公式等复杂内容格式，让知识记录更直观。
+- **UI 优化**: 简洁、现代且响应式的用户界面，提升跨设备使用体验。
+
+#### 2. 费曼学习法实践
+- **录音与语音转文字**: 用户可以像“教给别人”一样，用语音录制对知识点的理解，系统自动将语音转换为文字，完成费曼学习法的关键一步。
+- **AI 文本润色与评价**: 针对用户口述转化的文本，调用 AI 进行一键润色、总结，并从多个维度（如清晰度、准确性）给出智能评价和改进建议。
+
+#### 3. 对话式 AI 助手
+- **多对话管理**: 支持创建和管理多个独立的对话窗口，方便用户针对不同主题或知识点进行并行的探索式学习。
+- **RAG 增强问答**: 基于私有知识库进行检索增强生成，AI 助手能够精准回答与库内知识相关的问题，并提供参考来源，确保答案的可靠性与可追溯性。
+- **动画与交互优化**: 对话采用流式输出，并辅以精心设计的加载动画和交互效果，提升对话体验的流畅与自然感。
+
+#### 4. 智能评测系统
+- **AI 自动出题**: AI 可根据单个知识点内容，自动生成多种题型（如选择题、判断题、简答题）的测验，帮助用户检验掌握程度。
+- **批量智能测评**: 支持一键对多个知识点进行批量出题，形成综合试卷，提供更全面的能力评估。
+
+#### 5. 多维知识可视化
+- **2D 知识图谱**: 使用 `ECharts` 动态展示知识点之间的关联关系，构建清晰的知识网络。
+- **3D 关系图谱**: 借助 `Three.js` 将知识图谱在三维空间中进行渲染，提供更具沉浸感的探索体验。
+- **3D 地球可视化**: 集成 `Cesium` 框架，可将具有地理位置属性的知识点标注在虚拟地球上，适用于特定领域的知识展示。
+
+## 🛠️ 技术栈 (Tech Stack)
+
+- **前端**: `Vite`, `React`, `React Router`, `Axios`, `React-Quill`, `ECharts`, `Three.js`, `Cesium`, `Ant Design`
+- **后端**: `Node.js`, `Express`, `Sequelize`, `MySQL`, `JWT` (JSON Web Token)
+- **AI & RAG**: `LangChain.js`, `hnswlib-node` (向量存储与检索), `DeepSeek API`, `Baidu Ernie API`
+
+## 🚀 快速启动 (Getting Started)
+
+#### 1. 启动后端服务
+```bash
+# 1. 进入后端目录
+cd feynman-platform-backend
+
+# 2. 安装依赖
+npm install
+
+# 3. 配置环境变量
+#    - 复制 .env.example 为 .env
+#    - 在 .env 文件中填入数据库配置、JWT_SECRET 及 AI 服务商的 API Key
+
+# 4. 启动开发服务器 (默认端口 4500)
+npm run dev
+```
+
+#### 2. 启动前端应用
+```bash
+# 1. 进入前端目录
+cd feynman-platform-frontend
+
+# 2. 安装依赖
+npm install
+
+# 3. 启动开发服务器 (默认端口 5173)
+npm run dev
+```
+
+## 🔧 开发与部署
+
+#### 关键代码入口
+- **前端**
+  - **应用入口**: `src/main.jsx`, `src/App.jsx`
+  - **API 请求**: `src/api/axios.js` (统一配置 `baseURL` 和 `withCredentials`)
+  - **核心页面**: `src/pages/` 目录下，如 `AgentPage.jsx` (AI助手), `FeynmanRecordPage.jsx` (费曼录音), `QuizPage.jsx` (智能测验) 等。
+  - **Vite 代理**: `vite.config.js` 中配置 `/api` 代理，解决开发环境跨域问题。
+- **后端**
+  - **服务入口**: `index.js` (中间件、路由、数据库和 RAG 服务初始化)
+  - **核心路由**: `routes/` 目录下，按功能模块划分。
+  - **RAG 服务**: `services/vectorStoreService.js` (向量数据库的核心操作)
+  - **配置**: `config/database.js` 和 `.env` 文件。
+
+#### 环境变量（后端 `.env`）
+- `JWT_SECRET`: JWT 签名密钥，用于用户认证。
+- `DB_HOST`, `DB_USER`, `DB_PASS`, `DB_NAME`: 数据库连接信息。
+- `DEEPSEEK_API_KEY`, `BAIDU_ERNIE_API_KEY`, `BAIDU_ERNIE_SECRET_KEY`: AI 模型服务商的凭证。
+- `CORS_ORIGINS` (生产环境): 允许跨域访问的前端域名，多个用逗号分隔。
+
+#### 生产部署
+- **前端打包**: 在 `feynman-platform-frontend` 目录执行 `npm run build`，产物位于 `dist/` 目录。
+- **推荐方案**: 使用 Nginx 或类似网关进行反向代理。
+  - 将前端静态资源（`dist/` 目录内容）部署在根路径 `/`。
+  - 将 `/api` 路径的请求反向代理到后端服务 (如 `http://localhost:4500`)。
+  - 此方案可避免跨域问题，且结构清晰。
+
+## 🔮 可扩展方向 (Future Directions)
+
+- **知识图谱增强**: 引入图数据库（如 Neo4j），实现更复杂的图查询与分析。
+- **多人协作**: 支持多用户共同维护和学习知识库。
+- **跨平台客户端**: 使用 `Tauri` 或 `Electron` 将应用打包为桌面端，提升本地化体验。
+- **AI Agent 工作流**: 探索基于 LangGraph 或类似框架的复杂 AI Agent，实现自动化知识整理、总结和关联。
