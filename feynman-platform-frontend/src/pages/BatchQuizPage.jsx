@@ -127,19 +127,27 @@ function BatchQuizPage() {
   };
 
   return (
-    <div style={{ padding: 16, maxWidth: 960, margin: '0 auto' }}>
+    <div style={{
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center', // 水平居中所有子元素
+      gap: '1.5rem',
+      width: '100%',
+      padding: '0 1rem',
+      boxSizing: 'border-box',
+    }}>
       <h1>批量出题</h1>
 
-      <div style={{ marginBottom: 12 }}>
+      <div style={{ width: '100%', maxWidth: '720px' }}>
         <strong>已选知识点（{kps.length}）:</strong>
-        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 8 }}>
+        <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginTop: '0.5rem' }}>
           {kps.map((kp) => (
             <span key={kp.id ?? kp._id} style={{
-              padding: '4px 8px',
+              padding: '0.25rem 0.5rem',
               background: 'var(--color-surface-soft)',
-              borderRadius: 12,
-              fontSize: 12,
-              border: '1px solid #dee2e6'
+              borderRadius: 'var(--radius-md)',
+              fontSize: '12px',
+              border: '1px solid var(--color-border)'
             }}>
               {kp.title}
             </span>
@@ -147,12 +155,12 @@ function BatchQuizPage() {
         </div>
       </div>
 
-      <div style={{ marginBottom: 12 }}>
-        <button onClick={() => fetchQuestion('基础', 'single-choice')} className="btn-basic" disabled={isLoading} style={{ marginRight: 8 }}>单选·基础</button>
-        <button onClick={() => fetchQuestion('中等', 'single-choice')} className="btn-medium" disabled={isLoading} style={{ marginRight: 8 }}>单选·中等</button>
-        <button onClick={() => fetchQuestion('困难', 'single-choice')} className="btn-hard" disabled={isLoading} style={{ marginRight: 8 }}>单选·困难</button>
-        <span style={{ margin: '0 12px' }}>|</span>
-        <button onClick={() => fetchQuestion('中等', 'short-answer')} className="btn-short" disabled={isLoading} style={{ marginRight: 8 }}>简答·中等</button>
+      <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', justifyContent: 'center' }}>
+        <button onClick={() => fetchQuestion('基础', 'single-choice')} className="btn-basic" disabled={isLoading}>单选·基础</button>
+        <button onClick={() => fetchQuestion('中等', 'single-choice')} className="btn-medium" disabled={isLoading}>单选·中等</button>
+        <button onClick={() => fetchQuestion('困难', 'single-choice')} className="btn-hard" disabled={isLoading}>单选·困难</button>
+        <span style={{ borderLeft: '1px solid var(--color-border)', alignSelf: 'stretch' }}></span>
+        <button onClick={() => fetchQuestion('中等', 'short-answer')} className="btn-short" disabled={isLoading}>简答·中等</button>
         {!result && (
           <button onClick={() => navigate(-1)} className="back-btn">返回</button>
         )}
@@ -162,51 +170,48 @@ function BatchQuizPage() {
       {error && <p style={{ color: 'red' }}>{error}</p>}
 
       {question && !result && (
-        <form onSubmit={handleSubmit} style={{ marginTop: 16 }}>
-          <h3 style={{ marginBottom: 8 }}>
+        <form onSubmit={handleSubmit} style={{ width: '100%', maxWidth: '720px' }}>
+          <h3 style={{ marginBottom: '1rem' }}>
             [{question.type === 'single-choice' ? '单选' : '简答'} · {question.difficulty}] {question.question}
           </h3>
 
           {question.type === 'single-choice' && (
-            <div style={{ marginBottom: 16 }}>
+            <div style={{ marginBottom: '1rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
               {Object.entries(question.options || {}).map(([key, value]) => (
-                <div key={key} style={{ marginBottom: 6 }}>
-                  <label>
-                    <input
-                      type="radio"
-                      name="option"
-                      value={key}
-                      checked={selectedOption === key}
-                      onChange={(e) => setSelectedOption(e.target.value)}
-                      style={{ marginRight: 8 }}
-                    />
-                    {key}. {value}
-                  </label>
-                </div>
+                <label key={key} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <input
+                    type="radio"
+                    name="option"
+                    value={key}
+                    checked={selectedOption === key}
+                    onChange={(e) => setSelectedOption(e.target.value)}
+                  />
+                  {key}. {value}
+                </label>
               ))}
             </div>
           )}
 
           {question.type === 'short-answer' && (
-            <div style={{ marginBottom: 16 }}>
+            <div style={{ marginBottom: '1rem' }}>
               <textarea
                 placeholder="请在此作答..."
                 rows={6}
-                style={{ width: '100%', padding: 8 }}
+                style={{ width: '100%', padding: '0.5rem' }}
                 value={shortAnswer}
                 onChange={(e) => setShortAnswer(e.target.value)}
               />
             </div>
           )}
 
-          <button type="submit">提交答案</button>
+          <button type="submit" style={{ width: '100%' }}>提交答案</button>
         </form>
       )}
 
       {result && (
-        <div style={{ marginTop: 24 }}>
+        <div style={{ width: '100%', maxWidth: '720px', background: 'var(--color-surface)', padding: '1.5rem', borderRadius: 'var(--radius-md)', boxShadow: 'var(--shadow-md)' }}>
           <h2>测评结果</h2>
-          <p style={{ color: result.isCorrect ? 'green' : 'red', fontWeight: 'bold' }}>
+          <p style={{ color: result.isCorrect ? 'var(--color-success)' : 'var(--color-danger)', fontWeight: 'bold' }}>
             {result.isCorrect ? '回答正确！' : '回答错误！'}
           </p>
           {question.type === 'single-choice' && (
@@ -214,12 +219,13 @@ function BatchQuizPage() {
           )}
           <p><strong>解释:</strong> {result.explanation}</p>
           {!result.isCorrect && <p style={{ color: 'orange' }}>已将这些知识点加入你的复习列表。</p>}
-          <div style={{ marginTop: 12 }}>
-            <button onClick={() => fetchQuestion(question.difficulty, question.type)} style={{ marginRight: 8 }}>再来一题</button>
-            <button onClick={() => navigate(-1)}>返回</button>
+          <div style={{ marginTop: '1rem', display: 'flex', gap: '0.5rem' }}>
+            <button onClick={() => fetchQuestion(question.difficulty, question.type)}>再来一题</button>
+            <button onClick={() => navigate(-1)} className="back-btn">返回</button>
           </div>
         </div>
       )}
+
     </div>
   );
 }
