@@ -69,8 +69,8 @@ app.use('/api/audio', require('./routes/audio'));
 app.use('/api/ai', require('./routes/ai'));
 app.use('/api/knowledge', require('./routes/knowledge'));
 app.use('/api/graph', require('./routes/graph'));
-// 挂载 conversations 路由
 app.use('/api/conversations', require('./routes/conversations'));
+app.use('/api/version', require('./routes/version'));
 
 app.get('/', (req, res) => {
     res.send("欢迎来到新世界！")
